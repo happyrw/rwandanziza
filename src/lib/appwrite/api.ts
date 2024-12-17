@@ -59,17 +59,21 @@ export async function createFiles(formData: any) {
 }
 
 const uploadFile = async (images: any) => {
-  const response = await fetch(images);
-  const blob = await response.blob();
-  const file = new File([blob], "uploaded-image.png", { type: blob.type });
   try {
+    const response = await fetch(images);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    const blob = await response.blob();
+    const file = new File([blob], "uploaded-image.png", { type: blob.type });
+
     const uploadedFile = await storage.createFile(
       NEXT_PUBLIC_BUCKET_ID!,
       ID.unique(),
-      images
+      file // Pass the File object, not the URL
     );
-    console.log("Uploading", uploadedFile);
+    console.log("Uploaded File:", uploadedFile);
   } catch (error) {
-    console.log(error);
+    console.log("Error uploading file:", error);
   }
 };
