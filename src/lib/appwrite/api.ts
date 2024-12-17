@@ -1,6 +1,6 @@
 "use server";
 
-// import fetch from "node-fetch";
+import fetch from "node-fetch";
 import { ID, Query } from "node-appwrite";
 import {
   DATABASE_ID,
