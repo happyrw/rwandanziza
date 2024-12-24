@@ -1,41 +1,79 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
+import { createFile, deleteFile } from "@/lib/appwrite/api"; // Adjust the import path as necessary
 
 type FileUploadProps = {
-  fieldChange: (FILES: File[]) => void;
-  mediaUrl: string[]; // Expecting an array of image URLs
+  fieldChange: (files: File[], urls: string[]) => void; // Updated to pass URLs
+  mediaUrl: any; // Expecting an array of image URLs
 };
 
 const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
-  const [files, setFiles] = useState<File[]>([]); // Change state to hold multiple files
-  const [fileUrls, setFileUrls] = useState<string[]>(mediaUrl); // Change state to hold multiple file URLs
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileUrls, setFileUrls] =
+    useState<{ id: string; url: string }[]>(mediaUrl); // Changed to store objects with id and url
+
+  useEffect(() => {
+    if (mediaUrl && Array.isArray(mediaUrl)) {
+      const formattedUrls = mediaUrl.map((url: string) => {
+        if (typeof url === "string") {
+          const parts = url.split("/");
+          const fileIndex = parts.indexOf("files") + 1;
+          const id = parts[fileIndex]; // Extract the ID correctly
+          return { url, id };
+        }
+        return { url: null, id: null };
+      });
+      setFileUrls(formattedUrls as any);
+    }
+  }, [mediaUrl]);
 
   const onDrop = useCallback(
-    (acceptedFiles: FileWithPath[]) => {
+    async (acceptedFiles: FileWithPath[]) => {
       const newFiles = [...files, ...acceptedFiles];
       setFiles(newFiles);
-      fieldChange(newFiles);
 
-      const newFileUrls = acceptedFiles.map((file) =>
-        URL.createObjectURL(file)
-      );
-      setFileUrls((prevUrls) => [...prevUrls, ...newFileUrls]);
+      // Upload files to Appwrite
+      const newFileInfo = await createFile(acceptedFiles);
+      if (!newFileInfo) return;
+
+      // Combine old and new file URLs
+      const allFileUrls = [...fileUrls, ...newFileInfo];
+      setFileUrls(allFileUrls);
+
+      // Pass the URLs (not the local file objects) to `fieldChange`
+      fieldChange(
+        newFiles,
+        allFileUrls.map((file) => file.url)
+      ); // Pass only the URLs
     },
-    [files, fieldChange]
+    [files, fileUrls, fieldChange, mediaUrl]
   );
 
-  // Remove file handler
-  const handleRemoveFile = (index: number, e: React.MouseEvent) => {
+  const handleRemoveFile = async (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
-    // Remove the file and its corresponding URL
-    const updatedFiles = files.filter((_, i) => i !== index);
-    const updatedFileUrls = fileUrls.filter((_, i) => i !== index);
 
-    setFiles(updatedFiles);
-    setFileUrls(updatedFileUrls);
-    fieldChange(updatedFiles); // Inform the parent component of the change
+    const fileIdToDelete = fileUrls[index]?.id;
+    if (fileIdToDelete) {
+      const deleteSuccess = await deleteFile(fileIdToDelete);
+
+      if (deleteSuccess) {
+        const updatedFiles = files.filter((_, i) => i !== index);
+        const updatedFileUrls = fileUrls.filter((_, i) => i !== index);
+
+        setFiles(updatedFiles);
+        setFileUrls(updatedFileUrls);
+
+        // Trigger fieldChange with updated URLs
+        fieldChange(
+          updatedFiles,
+          updatedFileUrls.map((file) => file.url)
+        );
+      } else {
+        console.log("Failed to delete the file from storage.");
+      }
+    }
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -54,16 +92,13 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
       <input {...getInputProps()} />
       {fileUrls.length > 0 ? (
         <>
-          <div className="flex flex-wrap justify-center gap-4 p-7 h-80 lg:h-[300px] overflow-y-auto remove-scrollbar">
-            {fileUrls.map((url, index) => (
-              <div
-                key={index}
-                className="relative w-20 h-20 bg-dark-4 rounded-[24px]"
-              >
+          <div className="flex flex-wrap justify-center gap-2 p-7 h-80 lg:h-[300px] overflow-y-auto remove-scrollbar">
+            {fileUrls.map((file, index) => (
+              <div key={index} className="relative w-20 h-20 rounded-[24px]">
                 <img
-                  src={url}
+                  src={file.url} // Access URL from the object
                   alt={`preview-${index}`}
-                  className="w-full h-full object-cover object-top rounded-[24px] border border-blue-500"
+                  className="w-full h-full object-cover object-top rounded-[24px] border-[5px] border-blue-500"
                 />
                 <button
                   type="button"

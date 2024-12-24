@@ -1,18 +1,21 @@
 "use client";
 
-import { notFound, useSearchParams } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import React, { Suspense, useCallback, useEffect, useState } from "react";
 import ErrorComponent from "../Shared/ErrorComponent";
 import OnboardingSteps from "./OnboardingSteps";
 import TiptapComponent from "./Tiptap/TiptapComponent";
 
+import Loading from "@/app/Loading";
+import { useToast } from "@/hooks/use-toast";
+import { fetchPostByPostId, updatePost } from "@/lib/appwrite/api";
+import { Eye, EyeClosed } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useToast } from "@/hooks/use-toast";
+import LoaderComponent from "../Shared/LoaderComponent";
 import ImageUploaderComponent from "./ImageUploaderComponent";
-import { Eye, EyeClosed } from "lucide-react";
 import PreviewComponent from "./PreviewComponent";
-import { createFiles } from "@/lib/appwrite/api";
+import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
 
 export default function CreatePostComponent() {
   return (
@@ -23,8 +26,10 @@ export default function CreatePostComponent() {
 }
 
 const Content: React.FC = () => {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [done, setDone] = useState(false);
+  const [buttonText, setButtonText] = useState("Submit");
   const [formValues, setFormValues] = useState({
     title: "",
     province: "",
@@ -33,13 +38,16 @@ const Content: React.FC = () => {
   const [formData, setFormData] = useState({
     date: new Date(),
     title: "",
-    tiptap: "<p>Hey there 👋</p>",
+    tiptap: "",
     latitude: "",
-    images: [] as string[],
+    images: [] as File[] | string[],
     longitude: "",
     youtubeUrl: "",
     subServices: [
-      { name: "", images: [] as string[], description: "<p>Hey there 👋</p>" },
+      {
+        images: [] as File[] | string[],
+        description: "",
+      },
     ],
   });
 
@@ -48,9 +56,63 @@ const Content: React.FC = () => {
   const searchParam = useSearchParams();
   const category = searchParam.get("category");
   const hiddenToken = searchParam.get("dash");
+  const productId = searchParam.get("productId");
+  const { mutateAsync: createPost, isPending: loading } = useCreatePost();
+
+  const router = useRouter();
   const { toast } = useToast();
   if (hiddenToken !== process.env.NEXT_PUBLIC_DASHBOARD_HIDDEN_TOKEN)
     return notFound();
+
+  // Fetch the existing post if `productId` exists
+  useEffect(() => {
+    const fetchPost = async () => {
+      if (productId) {
+        try {
+          // setLoading(true);
+
+          // Fetch post by productId
+          const post = (await fetchPostByPostId(productId, category)) as any;
+
+          // Map images to URLs if they exist
+          const isValidDate = !isNaN(Date.parse(post.date));
+          const formattedPost = {
+            ...post,
+            tiptap: post.description,
+            date: isValidDate ? new Date(post.date) : new Date(),
+            images: post.images || [], // Ensure it's an array of URLs
+            subServices:
+              post.subServices?.map((subService: any) => ({
+                ...subService,
+                images: subService.images || [], // Ensure it's an array of URLs
+              })) || [],
+          };
+
+          // Update formData
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            ...formattedPost,
+          }));
+
+          // Update form values
+          setFormValues({
+            title: post.title || "",
+            province: post.province || "",
+            district: post.district || "",
+          });
+        } catch (error: any) {
+          // Handle errors
+          toast({
+            title: "Error fetching post",
+            description: error.message,
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    fetchPost();
+  }, [productId, category, toast]);
 
   useEffect(() => {
     const savedData = localStorage.getItem("onboardingData");
@@ -60,16 +122,22 @@ const Content: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if ((category === "event" || category === "economic") && !formValues) {
+    if (category && !formValues.title) {
       setShowOnboarding(true);
+    } else {
+      setShowOnboarding(false);
     }
   }, [category, formValues]);
+
+  useEffect(() => {
+    console.log(showOnboarding);
+  }, [showOnboarding]);
 
   useEffect(() => {
     if (formValues.title) {
       setFormData((prevFormData) => ({
         ...prevFormData,
-        title: formValues.title, // Update title in formData
+        title: formValues.title,
       }));
     }
   }, [formValues]);
@@ -81,18 +149,14 @@ const Content: React.FC = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleImageChange = (index: number, files: File[]) => {
+  const handleImageChange = (index: number, files: File[], urls: string[]) => {
     const updatedSubServices = [...formData.subServices];
-    const newImageUrls = files.map((file) => URL.createObjectURL(file));
-
-    updatedSubServices[index].images = newImageUrls;
-
+    updatedSubServices[index].images = urls; // Use URLs instead of files
     setFormData({ ...formData, subServices: updatedSubServices });
   };
 
-  const handleFileChange = (files: File[]) => {
-    const fileUrls = files.map((file) => URL.createObjectURL(file));
-    setFormData({ ...formData, images: fileUrls });
+  const handleFileChange = (files: File[], urls: string[]) => {
+    setFormData({ ...formData, images: urls }); // Update the state with URLs
   };
 
   const handleTiptapChange = useCallback(
@@ -107,10 +171,7 @@ const Content: React.FC = () => {
   const handleAddSubService = useCallback(() => {
     setFormData({
       ...formData,
-      subServices: [
-        ...formData.subServices,
-        { name: "", images: [], description: "" },
-      ],
+      subServices: [...formData.subServices, { images: [], description: "" }],
     });
   }, [formData]);
 
@@ -126,253 +187,276 @@ const Content: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (
-      !formData.date ||
-      !formData.title ||
-      !formData.tiptap ||
-      !formData.latitude ||
-      !formData.longitude ||
-      !formData.youtubeUrl
-    ) {
+    e.preventDefault();
+
+    const payload = {
+      ...formData,
+      postId: productId,
+      province: formValues.province,
+      district: formValues.district,
+      subServices: formData.subServices.map((subService: any) => ({
+        ...subService,
+        images: [...subService.images],
+        id: subService.$id || null,
+      })),
+    };
+
+    // setLoading(true);
+    setDone(true);
+    try {
+      if (productId) {
+        // Update logic
+        await updatePost(payload as any, category);
+        setButtonText("Redirecting...");
+        localStorage.removeItem("onboardingData");
+        toast({
+          title: "Post updated successfully! 🎉",
+          description: "Your post has been updated successfully!",
+        });
+      } else {
+        // Create logic
+        await createPost({ payload, category });
+        setButtonText("Redirecting...");
+        toast({
+          title: "Post created successfully! 🎉",
+          description: "Your post has been created successfully!",
+        });
+      }
+
+      router.push(
+        "/dashboard?dash=74c4f6ad5bd3b882a83180e277a316074902179a1b0f7a8ed1684476ddbd23b2"
+      );
+    } catch (error) {
+      setDone(false);
       toast({
-        title: "Missing required fields",
-        description: "Please fill out the required fields",
+        title: `Error ${productId ? "updating" : "creating"} post. ❌`,
+        description: "There was an error, please try again later.",
         variant: "destructive",
       });
+      console.error(
+        `Error ${productId ? "updating" : "creating"} post:`,
+        error
+      );
     }
-
-    e.preventDefault();
-    const data = await createFiles(formData);
-    toast({
-      title: "Well done.",
-      description: "You did it, nice job.",
-    });
   };
 
   return (
     <div className="mb-10">
-      {showOnboarding && !formValues && (
-        <OnboardingSteps
-          category={category}
-          setShowOnboarding={setShowOnboarding}
-        />
-      )}
-      {!preview && (
-        <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-10 p-2 md:p-[70px] bg-white shadow-lg rounded-md mx-auto border-2">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Title:
-              </label>
-              <input
-                type="text"
-                name="title"
-                id="title"
-                // @ts-ignore
-                value={formData.title}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="title"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Images:
-              </label>
-              <ImageUploaderComponent
-                fieldChange={handleFileChange}
-                mediaUrl={formData.images}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="latitude"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Latitude:
-              </label>
-              <input
-                type="number"
-                name="latitude"
-                id="latitude"
-                value={formData.latitude}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="longitude"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Longitude:
-              </label>
-              <input
-                type="number"
-                name="longitude"
-                id="longitude"
-                value={formData.longitude}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Description:
-              </label>
-              <TiptapComponent
-                value={formData.tiptap}
-                onChange={(value) =>
-                  setFormData({ ...formData, tiptap: value })
-                }
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="youtubeUrl"
-                className="block text-sm font-medium text-gray-700"
-              >
-                YouTube Video URL:
-              </label>
-              <input
-                type="url"
-                name="youtubeUrl"
-                id="youtubeUrl"
-                value={formData.youtubeUrl}
-                onChange={handleChange}
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="date"
-                className="block text-sm font-medium text-gray-700"
-              >
-                Date:
-              </label>
-              <div className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                <DatePicker
-                  selected={formData.date}
-                  onChange={(date) => handleDateChange(date)}
-                  dateFormat="MM/dd/yyyy"
-                  showTimeSelect={false}
-                  timeInputLabel="Time:"
-                  className="border-0 outline-0 py-px"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 text-center bg-emerald-300 py-2 mb-2">
-                Sub Posts
-              </label>
-              {formData.subServices.map((subService, index) => (
-                <div key={index} className="space-y-4 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Sub Service Name:
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={subService.name}
-                      onChange={(e) => {
-                        const updatedSubServices = [...formData.subServices];
-                        updatedSubServices[index].name = e.target.value;
-                        setFormData({
-                          ...formData,
-                          subServices: updatedSubServices,
-                        });
-                      }}
-                      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Upload Images for Sub Service:
-                    </label>
-                    <ImageUploaderComponent
-                      fieldChange={(files: File[]) =>
-                        handleImageChange(index, files)
-                      } // Update images for this sub-service
-                      mediaUrl={subService.images} // Pass current images of this sub-service
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">
-                      Sub Service Description:
-                    </label>
-                    <TiptapComponent
-                      value={subService.description}
-                      onChange={(value) => handleTiptapChange(index, value)}
-                    />
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveSubService(index)}
-                    className="mt-2 text-red-600 hover:text-red-800"
+      {(productId && !formData.images.length) ||
+      (productId && formData.tiptap === "") ||
+      (!formValues.title && !showOnboarding) ? (
+        <LoaderComponent />
+      ) : (
+        <>
+          {showOnboarding && (
+            <OnboardingSteps
+              category={category}
+              setShowOnboarding={setShowOnboarding}
+            />
+          )}
+          {!preview && (
+            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-10 p-2 md:p-[70px] bg-white shadow-lg rounded-md mx-auto border-2">
+              <form onSubmit={handleSubmit} className="relative space-y-6">
+                {done && (
+                  <div className="absolute z-10 h-full bg-white/50 w-full top-0 bottom-0 right-0 left-0"></div>
+                )}
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700"
                   >
-                    - Remove Sub Service
-                  </button>
+                    Title:
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    id="title"
+                    // @ts-ignore
+                    value={formData.title}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
                 </div>
-              ))}
-              <div className="flex items-center justify-between w-full">
+
+                <div>
+                  <label
+                    htmlFor="title"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Images:
+                  </label>
+                  <ImageUploaderComponent
+                    fieldChange={handleFileChange}
+                    mediaUrl={formData.images}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Description:
+                  </label>
+                  <TiptapComponent
+                    value={formData.tiptap}
+                    onChange={(value) =>
+                      setFormData({ ...formData, tiptap: value })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="latitude"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Latitude:
+                  </label>
+                  <input
+                    type="number"
+                    name="latitude"
+                    id="latitude"
+                    value={formData.latitude}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="longitude"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Longitude:
+                  </label>
+                  <input
+                    type="number"
+                    name="longitude"
+                    id="longitude"
+                    value={formData.longitude}
+                    onChange={handleChange}
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="youtubeUrl"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    YouTube Video URL:
+                  </label>
+                  <input
+                    type="url"
+                    name="youtubeUrl"
+                    id="youtubeUrl"
+                    value={formData.youtubeUrl}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  />
+                </div>
+
+                {category === "event" && (
+                  <div>
+                    <label
+                      htmlFor="date"
+                      className="block text-sm font-medium text-gray-700"
+                    >
+                      Date:
+                    </label>
+                    <div className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                      <DatePicker
+                        selected={formData.date}
+                        onChange={(date) => handleDateChange(date)}
+                        dateFormat="MM/dd/yyyy"
+                        showTimeSelect={false}
+                        timeInputLabel="Time:"
+                        className="border-0 outline-0 py-px"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 text-center bg-emerald-300 py-2 mb-2">
+                    Sub Posts
+                  </label>
+                  {formData.subServices.map((subService, index) => (
+                    <div key={index} className="space-y-4 mb-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Upload Images for Sub Service:
+                        </label>
+                        <ImageUploaderComponent
+                          fieldChange={(files: File[], urls: string[]) =>
+                            handleImageChange(index, files, urls)
+                          }
+                          mediaUrl={subService.images}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">
+                          Sub Service Description:
+                        </label>
+                        <TiptapComponent
+                          value={subService.description}
+                          onChange={(value) => handleTiptapChange(index, value)}
+                        />
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSubService(index)}
+                        className="mt-2 text-red-600 hover:text-red-800"
+                      >
+                        - Remove Sub Service
+                      </button>
+                    </div>
+                  ))}
+                  <div className="flex items-center justify-between w-full">
+                    <button
+                      type="button"
+                      onClick={handleAddSubService}
+                      className="mt-4 text-blue-600 hover:text-blue-800"
+                    >
+                      + Add Sub Service
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreview(true)}
+                      className="mt-4 text-blue-600 hover:text-blue-800 flex items-center gap-3"
+                    >
+                      Preview <Eye />
+                    </button>
+                  </div>
+                </div>
+
                 <button
-                  type="button"
-                  onClick={handleAddSubService}
-                  className="mt-4 text-blue-600 hover:text-blue-800"
+                  type="submit"
+                  disabled={loading}
+                  className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  + Add Sub Service
+                  {loading ? <Loading /> : buttonText}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => setPreview(true)}
-                  className="mt-4 text-blue-600 hover:text-blue-800 flex items-center gap-3"
-                >
-                  Preview <Eye />
-                </button>
-              </div>
+              </form>
             </div>
+          )}
 
-            <button
-              type="submit"
-              className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Submit
-            </button>
-          </form>
-        </div>
-      )}
-
-      {preview && (
-        <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-5 mx-auto">
-          <PreviewComponent data={formData} />
-          <button
-            type="button"
-            onClick={() => setPreview(false)}
-            className="mt-4 text-blue-600 bg-blue-600/20 hover:text-blue-800 flex items-center gap-3 w-full p-2 justify-center"
-          >
-            Close Preview <EyeClosed />
-          </button>
-        </div>
+          {preview && (
+            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-5 mx-auto">
+              <PreviewComponent data={formData} />
+              <button
+                type="button"
+                onClick={() => setPreview(false)}
+                className="mt-4 text-blue-600 bg-blue-600/20 hover:text-blue-800 flex items-center gap-3 w-full p-2 justify-center"
+              >
+                Close Preview <EyeClosed />
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

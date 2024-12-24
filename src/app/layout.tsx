@@ -5,6 +5,7 @@ import Navbar from "@/components/Shared/Navbar";
 import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/Shared/Footer";
 import { ClerkProvider } from "@clerk/nextjs";
+import { QueryProvider } from "@/lib/react-query/QueryProvider";
 
 const lora = Lora({ subsets: ["latin"] });
 
@@ -23,14 +24,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <ClerkProvider>
-        <body className={lora.className}>
-          <Navbar />
-          {children}
-          <Footer />
-          <Toaster />
-        </body>
-      </ClerkProvider>
+      <QueryProvider>
+        <ClerkProvider>
+          <body className={lora.className}>
+            <Navbar />
+            {children}
+            <Footer />
+            <Toaster />
+          </body>
+        </ClerkProvider>
+      </QueryProvider>
     </html>
   );
 }

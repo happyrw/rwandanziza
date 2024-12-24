@@ -1,5 +1,3 @@
-import React from "react";
-
 type PreviewProps = {
   data: {
     date: Date;
@@ -8,11 +6,10 @@ type PreviewProps = {
     latitude: string;
     longitude: string;
     subServices: {
-      name: string;
-      images: string[]; // Array of image URLs (blob URLs in your case)
+      images: any; // Array of image URLs (blob URLs in your case)
       description: string;
     }[];
-    images: string[]; // Array of image URLs (blob URLs in your case)
+    images: any; // Array of image URLs (blob URLs in your case)
     youtubeUrl: string;
   };
 };
@@ -46,7 +43,7 @@ const PreviewComponent: React.FC<PreviewProps> = ({ data }) => {
 
       {/* Images */}
       <div className="image-preview flex flex-wrap gap-4 mb-6">
-        {displayImages.map((imageUrl, index) => (
+        {displayImages.map((imageUrl: any, index: any) => (
           <img
             key={index}
             src={imageUrl}
@@ -68,15 +65,12 @@ const PreviewComponent: React.FC<PreviewProps> = ({ data }) => {
         </h3>
         {data.subServices.map((subService, index) => (
           <div key={index} className="sub-service mb-6">
-            <h4 className="font-semibold text-md text-gray-800 mb-2">
-              {subService.name}
-            </h4>
             <div
               className="sub-service-description mb-2 text-gray-700"
               dangerouslySetInnerHTML={{ __html: subService.description }}
             />
             <div className="image-preview flex flex-wrap gap-4 mb-4">
-              {subService.images.slice(0, 4).map((imageUrl, idx) => (
+              {subService.images.slice(0, 4).map((imageUrl: any, idx: any) => (
                 <img
                   key={idx}
                   src={imageUrl}

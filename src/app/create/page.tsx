@@ -1,8 +1,6 @@
-import BannerComponent from "@/components/CreatePost/BannerComponent";
 import CreatePostComponent from "@/components/CreatePost/CreatePostComponent";
-import React from "react";
 
-const CreatePage = () => {
+const CreatePage = async () => {
   return (
     <div>
       {/* <BannerComponent /> */}

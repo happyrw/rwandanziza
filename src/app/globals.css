@@ -6,6 +6,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Style the entire scrollbar */
+::-webkit-scrollbar {
+  width: 5px; /* Width for vertical scrollbar */
+  height: 0px; /* Height for horizontal scrollbar */
+}
+
+/* Style the scrollbar track (background) */
+::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+/* Style the scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Change the scrollbar thumb color on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+/* Style the entire scrollbar */
+
 @layer base {
   /* Remove scrollbar */
   .remove-scrollbar::-webkit-scrollbar {
@@ -47,6 +71,16 @@ body {
 }
 
 /* Tiptap */
+
+/* Placeholder (at the top) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #adb5bd;
+  pointer-events: none;
+  height: 0;
+}
+
 .ProseMirror {
   padding: 5px;
   background: transparent;
@@ -84,18 +118,14 @@ body {
   border-left: 4px solid #ddd;
   padding-left: 16px;
   color: #6b7280;
-  /* Gray-600 color */
   font-style: italic;
 }
 
-/* Code block styling */
 .ProseMirror code {
   background-color: #d32f2f2d;
-  /* Gray-100 background */
   padding: 2px 4px;
   border-radius: 4px;
   color: #d32f2f;
-  /* Red-600 color */
   font-family: monospace;
 }
 
@@ -179,6 +209,24 @@ body {
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+  }
+}
+
+@layer utilities {
+  .post-card {
+    @apply rounded-3xl border p-5 lg:p-7 w-full max-w-screen-sm;
+  }
+
+  .small-medium {
+    @apply text-[14px] font-medium leading-[140%];
+  }
+
+  .base-medium {
+    @apply text-[16px] font-medium leading-[140%];
+  }
+
+  .post-card_img {
+    @apply h-64 lg:h-[450px] w-full rounded-[24px] object-cover mb-5;
   }
 }
 

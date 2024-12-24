@@ -67,6 +67,7 @@ const OnboardingSteps = ({
     setLoading(true);
     setTimeout(() => {
       setShowOnboarding(false);
+      window.location.reload();
     }, 3000);
   };
 
@@ -148,7 +149,7 @@ const OnboardingSteps = ({
   };
 
   return (
-    <div className="h-[calc(100vh-120px)] flex items-center justify-center flex-col">
+    <div className="fixed w-full h-[calc(100vh-120px)] flex items-center justify-center flex-col bg-white z-20">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}

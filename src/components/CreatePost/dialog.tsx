@@ -1,16 +1,13 @@
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import React from "react";
-import { Button } from "../ui/button";
-import Link from "next/link";
 import { Plus } from "lucide-react";
+import Link from "next/link";
 
 const DialogComponent = () => {
   const dashboardHiddenToken = process.env.NEXT_PUBLIC_DASHBOARD_HIDDEN_TOKEN;
@@ -18,8 +15,8 @@ const DialogComponent = () => {
     <>
       <Dialog>
         <DialogTrigger>
-          <div className="mt-5 px-20 bg-black rounded-md text-white py-2 flex gap-5">
-            Add now <Plus />
+          <div className="text-nowrap bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-2 rounded-md flex gap-2 text-sm">
+            Add now <Plus className="h-5 w-5" />
           </div>
         </DialogTrigger>
         <DialogContent>
@@ -28,7 +25,7 @@ const DialogComponent = () => {
             <div>
               <Link
                 className="mt-5 px-2 w-full flex justify-between bg-black rounded-md text-white py-2"
-                href={`/create?category=event&dash=${dashboardHiddenToken}`}
+                href={`/create?category=province&dash=${dashboardHiddenToken}`}
               >
                 Province <Plus />
               </Link>
