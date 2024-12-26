@@ -76,6 +76,9 @@ export async function NavigationSheet() {
         </div>
         <SheetFooter>
           <SheetClose asChild>
+            <Link href="/explore">Explore</Link>
+          </SheetClose>
+          <SheetClose asChild>
             <Button variant="ghost" className="w-full">
               Close
             </Button>
