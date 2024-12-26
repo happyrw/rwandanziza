@@ -16,11 +16,9 @@ import {
   SignOutButton,
   SignUpButton,
 } from "@clerk/nextjs";
-import { currentUser } from "@clerk/nextjs/server";
 import { ArrowRight, LogOut } from "lucide-react";
-import { useState } from "react";
-import SearchField from "./SearchField";
 import Link from "next/link";
+import SearchField from "./SearchField";
 
 export async function NavigationSheet() {
   return (
@@ -31,6 +29,7 @@ export async function NavigationSheet() {
         </Button>
       </SheetTrigger>
       <SheetContent>
+        <span tabIndex={0} />
         <SheetHeader>
           <SheetTitle>
             <SignedIn>User Menu</SignedIn>

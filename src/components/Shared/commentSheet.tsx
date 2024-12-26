@@ -20,13 +20,16 @@ export function CommentSheet() {
           <MessageCirclePlus />
         </div>
       </SheetTrigger>
-      <SheetContent className="flex flex-col h-full">
+      <SheetContent
+        className="flex flex-col h-full w-full"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
         <SheetHeader>
           <SheetTitle>Comments</SheetTitle>
           <SheetDescription>Share your thoughts below!</SheetDescription>
         </SheetHeader>
         {/* Comments Section */}
-        <div className="flex-grow overflow-y-auto p-4 border rounded-md remove-scrollbar">
+        <div className="flex-grow overflow-y-auto p-2 border rounded-md remove-scrollbar">
           {/* Replace the following with actual comments */}
           <div className="mb-2">
             <div className="flex items-center gap-3">
@@ -172,7 +175,6 @@ export function CommentSheet() {
         {/* Input Section */}
         <div className="p-4 border-t flex items-center gap-2">
           <Input
-            id="newComment"
             placeholder="Write your comment here..."
             className="flex-grow"
           />

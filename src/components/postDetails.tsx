@@ -1,5 +1,4 @@
 "use client";
-import { fetchPostByPostId } from "@/lib/appwrite/api";
 import { formatTimeAgo } from "@/lib/utils";
 import { format } from "date-fns";
 import { useSearchParams } from "next/navigation";
@@ -9,6 +8,7 @@ import "react-medium-image-zoom/dist/styles.css";
 import ImageDialog from "./Shared/ImageDialog";
 import LoaderComponent from "./Shared/LoaderComponent";
 import { CommentSheet } from "./Shared/commentSheet";
+import { useGetPostById } from "@/lib/react-query/queriesAndMutations";
 
 export default function PostDetailsComponent() {
   return (
@@ -19,29 +19,13 @@ export default function PostDetailsComponent() {
 }
 
 const Content: React.FC = () => {
-  const [post, setPost] = useState<any>();
-  const [loading, setLoading] = useState<any>();
   const searchParam = useSearchParams();
 
   const category = searchParam.get("category");
   const postId = searchParam.get("postId");
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      if (postId && category) {
-        try {
-          const data = await fetchPostByPostId(postId, category);
-          setPost(data);
-        } catch (error) {
-          console.error("Error fetching post:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
+  const { data: post, isPending: loading } = useGetPostById(postId!, category!);
 
-    fetchPost();
-  }, [postId, category]);
   if (loading) return <p>Loading...</p>;
   if (!post) return <LoaderComponent />;
 
@@ -82,17 +66,62 @@ const Content: React.FC = () => {
       {post.images.length > 0 && (
         <section className="relative mb-8">
           <h2 className="text-2xl font-semibold text-gray-700 mb-4">Images</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 remove-scrollbar">
-            {post.images.slice(0, 4).map((image: string, index: number) => (
-              <Zoom key={index}>
+          {post.images.length > 3 && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 remove-scrollbar">
+              {post.images.slice(0, 4).map((image: string, index: number) => (
+                <Zoom key={index}>
+                  <img
+                    src={image}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full h-48 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                  />
+                </Zoom>
+              ))}
+            </div>
+          )}
+
+          {/* 1 image */}
+          {post.images.length === 1 && (
+            <div className="grid grid-cols-1">
+              <Zoom key={post.images[0]}>
                 <img
-                  src={image}
-                  alt={`Post image ${index + 1}`}
-                  className="w-full h-48 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                  src={post.images[0]}
+                  alt="post image"
+                  className="w-full md:w-2/3 h-60 md:h-80 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
                 />
               </Zoom>
-            ))}
-          </div>
+            </div>
+          )}
+
+          {/* 2 images */}
+          {post.images.length === 2 && (
+            <div className="grid grid-cols-2 gap-3">
+              {post.images.slice(0, 2).map((image: string, index: number) => (
+                <Zoom key={index}>
+                  <img
+                    src={image}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full h-60 md:h-80 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                  />
+                </Zoom>
+              ))}
+            </div>
+          )}
+
+          {/* 3 images */}
+          {post.images.length === 3 && (
+            <div className="grid grid-cols-3 gap-2">
+              {post.images.slice(0, 3).map((image: string, index: number) => (
+                <Zoom key={index}>
+                  <img
+                    src={image}
+                    alt={`Post image ${index + 1}`}
+                    className="w-full h-60 md:h-80 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                  />
+                </Zoom>
+              ))}
+            </div>
+          )}
           {post.images.length > 4 && <ImageDialog Images={post.images} />}
         </section>
       )}
@@ -114,22 +143,71 @@ const Content: React.FC = () => {
                 className="prose prose-lg text-gray-600"
                 dangerouslySetInnerHTML={{ __html: subService.description }}
               />
-              <div className="relative grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                {subService.images
-                  .slice(0, 4)
-                  .map((image: any, idx: number) => (
-                    <Zoom key={idx}>
-                      <img
-                        src={image}
-                        alt={`Sub-service image ${idx + 1}`}
-                        className="w-full h-40 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
-                      />
-                    </Zoom>
-                  ))}
-                {subService.images.length > 4 && (
-                  <ImageDialog Images={subService.images} />
-                )}
-              </div>
+              {subService.images.length > 3 && (
+                <div className="relative grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+                  {subService.images
+                    .slice(0, 4)
+                    .map((image: any, idx: number) => (
+                      <Zoom key={idx}>
+                        <img
+                          src={image}
+                          alt={`Sub-service image ${idx + 1}`}
+                          className="w-full h-40 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                        />
+                      </Zoom>
+                    ))}
+                  {subService.images.length > 4 && (
+                    <ImageDialog Images={subService.images} />
+                  )}
+                </div>
+              )}
+
+              {/* 1 image */}
+              {subService.images.length === 1 && (
+                <div className="grid grid-cols-1">
+                  <Zoom key={subService.images[0]}>
+                    <img
+                      src={subService.images[0]}
+                      alt="post image"
+                      className="w-full md:w-2/3 h-60 md:h-72 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                    />
+                  </Zoom>
+                </div>
+              )}
+
+              {/* 2 images */}
+              {subService.images.length === 2 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {subService.images
+                    .slice(0, 2)
+                    .map((image: string, index: number) => (
+                      <Zoom key={index}>
+                        <img
+                          src={image}
+                          alt={`Post image ${index + 1}`}
+                          className="w-full h-56 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                        />
+                      </Zoom>
+                    ))}
+                </div>
+              )}
+
+              {/* 3 images */}
+              {subService.images.length === 3 && (
+                <div className="grid grid-cols-3 gap-2">
+                  {subService.images
+                    .slice(0, 3)
+                    .map((image: string, index: number) => (
+                      <Zoom key={index}>
+                        <img
+                          src={image}
+                          alt={`Post image ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-lg shadow-lg hover:scale-x-95 transition-transform duration-200"
+                        />
+                      </Zoom>
+                    ))}
+                </div>
+              )}
             </div>
           ))}
         </section>

@@ -1,10 +1,18 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import {
   createPost,
+  fetchPostByPostId,
+  getInfinitePosts,
   getRecentPosts,
   likeEvent,
   likePost,
+  searchPosts,
   updatePost,
 } from "../appwrite/api";
 
@@ -46,52 +54,6 @@ export const useUpdatePost = () => {
   });
 };
 
-// export const useGetPostById = (postId: string) => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
-//     queryFn: () => getPostById(postId),
-//     enabled: !!postId,
-//   });
-// };
-
-// export const useDeletePost = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: ({ postId, imageId }: { postId: string; imageId: string }) =>
-//       deletePost(postId, imageId),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-//       });
-//     },
-//   });
-// };
-
-// export const useGetPosts = () => {
-//   //@ts-ignore
-//   return useInfiniteQuery({
-//     queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
-//     queryFn: getInfinitePosts,
-//     getNextPageParam: (lastPage) => {
-//       if (lastPage && lastPage.documents.length === 0) return null;
-
-//       const lastId = lastPage?.documents[lastPage?.documents.length - 1].$id;
-//       return lastId;
-//     },
-//   });
-// };
-
-// export const useSearchPosts = (searchTerm: string) => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
-//     queryFn: () => searchPosts(searchTerm),
-//     enabled: !!searchTerm,
-//   });
-// };
-
-// // Likes and Saves
-
 export const useLikePost = () => {
   const queryClient = useQueryClient();
 
@@ -118,6 +80,54 @@ export const useLikePost = () => {
     },
   });
 };
+
+export const useGetPostById = (postId: string, category: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId, category],
+    queryFn: () => fetchPostByPostId(postId, category),
+    enabled: !!postId,
+  });
+};
+
+export const useSearchPosts = (searchTerm: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
+    queryFn: () => searchPosts(searchTerm),
+    enabled: !!searchTerm,
+  });
+};
+
+export const useGetPosts = (
+  category: "event" | "economic" | "district" | "province"
+) => {
+  //@ts-ignore
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.GET_INFINITE_POSTS, category], // Include category in the query key
+    queryFn: ({ pageParam }) => getInfinitePosts({ pageParam, category }), // Pass category to the query function
+    getNextPageParam: (lastPage: any) => {
+      // Stop fetching if there are no more documents
+      if (!lastPage.hasMore) return null;
+
+      return lastPage.nextCursor; // Use the cursor from the last page
+    },
+  });
+};
+
+// export const useDeletePost = () => {
+//   const queryClient = useQueryClient();
+
+//   return useMutation({
+//     mutationFn: ({ postId, imageId }: { postId: string; imageId: string }) =>
+//       deletePost(postId, imageId),
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+//       });
+//     },
+//   });
+// };
+
+// // Likes and Saves
 
 // export const useSavePost = () => {
 //   const queryClient = useQueryClient();

@@ -8,18 +8,21 @@ import TiptapComponent from "./Tiptap/TiptapComponent";
 
 import Loading from "@/app/Loading";
 import { useToast } from "@/hooks/use-toast";
-import { fetchPostByPostId, updatePost } from "@/lib/appwrite/api";
+import { fetchPostByPostId } from "@/lib/appwrite/api";
 import { Eye, EyeClosed } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import LoaderComponent from "../Shared/LoaderComponent";
 import ImageUploaderComponent from "./ImageUploaderComponent";
 import PreviewComponent from "./PreviewComponent";
-import { useCreatePost } from "@/lib/react-query/queriesAndMutations";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutations";
 
 export default function CreatePostComponent() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense fallback={<LoaderComponent />}>
       <Content />
     </Suspense>
   );
@@ -57,7 +60,10 @@ const Content: React.FC = () => {
   const category = searchParam.get("category");
   const hiddenToken = searchParam.get("dash");
   const productId = searchParam.get("productId");
-  const { mutateAsync: createPost, isPending: loading } = useCreatePost();
+  const { mutateAsync: createPost, isPending: isLoadingCreate } =
+    useCreatePost();
+  const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
+    useUpdatePost();
 
   const router = useRouter();
   const { toast } = useToast();
@@ -206,7 +212,7 @@ const Content: React.FC = () => {
     try {
       if (productId) {
         // Update logic
-        await updatePost(payload as any, category);
+        await updatePost({ payload, category });
         setButtonText("Redirecting...");
         localStorage.removeItem("onboardingData");
         toast({
@@ -435,10 +441,14 @@ const Content: React.FC = () => {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isLoadingCreate || isLoadingUpdate}
                   className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
-                  {loading ? <Loading /> : buttonText}
+                  {isLoadingCreate || isLoadingUpdate ? (
+                    <Loading />
+                  ) : (
+                    buttonText
+                  )}
                 </button>
               </form>
             </div>

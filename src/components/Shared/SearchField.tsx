@@ -17,7 +17,7 @@ export default function SearchField({ className }: SearchFieldProps) {
     const form = e.currentTarget;
     const q = (form.q as HTMLInputElement).value.trim();
     if (!q) return;
-    router.push(`/shop?q=${encodeURIComponent(q)}`);
+    router.push(`/explore?searchTerm=${q}`);
   }
 
   return (

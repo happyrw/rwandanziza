@@ -51,7 +51,7 @@ const PostStatus = ({
   };
 
   return (
-    <div className="flex items-center justify-between px-2 lg:px-10 mt-2">
+    <div className="flex items-center justify-between px-[2px] lg:px-10 mt-2">
       <div className="flex gap-2">
         <img
           src={

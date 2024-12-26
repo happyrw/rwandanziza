@@ -763,7 +763,65 @@ export const getRecentPosts = async () => {
       ...province.documents,
     ];
   } catch (error) {
-    console.error("Failed to fetch posts by user ID:", error);
+    console.error("Failed to fetch posts:", error);
+    throw error;
+  }
+};
+
+export const getInfinitePosts = async ({
+  pageParam,
+  category,
+}: {
+  pageParam?: string; // Cursor for pagination
+  category: "event" | "economic" | "district" | "province"; // Category to fetch
+}) => {
+  const limit = 2; // Number of posts per fetch
+
+  const queries = (cursor?: string) => [
+    Query.orderDesc("$updatedAt"),
+    Query.limit(limit),
+    ...(cursor ? [Query.cursorAfter(cursor)] : []),
+  ];
+
+  try {
+    // Map category to collection IDs
+    const collectionMap = {
+      event: EVENT_COLLECTION_ID,
+      economic: ECONOMIC_COLLECTION_ID,
+      district: DISTRICT_COLLECTION_ID,
+      province: PROVINCE_COLLECTION_ID,
+    };
+
+    // Get the collection ID for the selected category
+    const collectionId = collectionMap[category];
+
+    if (!collectionId) {
+      throw new Error(`Invalid category: ${category}`);
+    }
+
+    // Fetch data from the selected collection
+    const response = await databases.listDocuments(
+      DATABASE_ID!,
+      collectionId!,
+      queries(pageParam)
+    );
+
+    // Get the last document ID as the cursor for pagination
+    const nextCursor = response.documents.length
+      ? response.documents[response.documents.length - 1].$id
+      : null;
+
+    // Check if there are more posts to fetch
+    const hasMore = response.documents.length === limit;
+
+    // Return the fetched documents, cursor, and hasMore flag
+    return {
+      documents: response.documents,
+      nextCursor,
+      hasMore,
+    };
+  } catch (error) {
+    console.error("Failed to fetch posts:", error);
     throw error;
   }
 };
@@ -1303,6 +1361,41 @@ export const likeProvince = async (postId: string, likesArray: string[]) => {
     );
 
     return updatedLikes.$id;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+/**
+ * SEARCH POST
+ */
+
+export const searchPosts = async (searchTerm: string) => {
+  try {
+    const [event, economic, district, province] = await Promise.all([
+      databases.listDocuments(DATABASE_ID!, EVENT_COLLECTION_ID!, [
+        Query.search("title", searchTerm),
+      ]),
+      databases.listDocuments(DATABASE_ID!, ECONOMIC_COLLECTION_ID!, [
+        Query.search("title", searchTerm),
+      ]),
+      databases.listDocuments(DATABASE_ID!, DISTRICT_COLLECTION_ID!, [
+        Query.search("title", searchTerm),
+      ]),
+      databases.listDocuments(DATABASE_ID!, PROVINCE_COLLECTION_ID!, [
+        Query.search("title", searchTerm),
+      ]),
+    ]);
+
+    const allPosts = [
+      ...event.documents,
+      ...economic.documents,
+      ...district.documents,
+      ...province.documents,
+    ];
+
+    console.log("searchPost", allPosts);
+    return allPosts;
   } catch (error) {
     console.log(error);
   }
