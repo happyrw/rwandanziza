@@ -775,7 +775,7 @@ export const getInfinitePosts = async ({
   pageParam?: string; // Cursor for pagination
   category: "event" | "economic" | "district" | "province"; // Category to fetch
 }) => {
-  const limit = 2; // Number of posts per fetch
+  const limit = 20; // Number of posts per fetch
 
   const queries = (cursor?: string) => [
     Query.orderDesc("$updatedAt"),
@@ -1394,7 +1394,6 @@ export const searchPosts = async (searchTerm: string) => {
       ...province.documents,
     ];
 
-    console.log("searchPost", allPosts);
     return allPosts;
   } catch (error) {
     console.log(error);

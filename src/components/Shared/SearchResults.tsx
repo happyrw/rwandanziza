@@ -18,8 +18,8 @@ const SearchResults = ({
       </div>
     );
   }
-  if ((searchedPosts as any).documents.length > 0) {
-    return <GridPostList posts={(searchedPosts as any).documents} />;
+  if (searchedPosts.length > 0) {
+    return <GridPostList posts={searchedPosts} />;
   }
 
   return (
