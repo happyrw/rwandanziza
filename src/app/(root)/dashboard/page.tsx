@@ -8,16 +8,12 @@ import Image from "next/image";
 const Dashboard = async () => {
   const user = await currentUser();
   const data = await fetchPostByUserId(user?.id ?? "");
-  data.sort(
-    //@ts-ignore
-    (a, b) => new Date(b.$createdAt) - new Date(a.$createdAt)
-  );
 
   const username = user?.username;
 
   return (
     <main>
-      {data.length === 0 ? (
+      {data.total === 0 ? (
         <div className="h-[calc(100vh-120px)]">
           <div className="flex items-center justify-center flex-col h-full">
             <Image
@@ -47,7 +43,7 @@ const Dashboard = async () => {
             <DialogComponent />
           </div>
           <div className="w-[100vw] overflow-y-auto">
-            <DataTable columns={columns} data={data as any} />
+            <DataTable columns={columns} data={data.documents as any} />
           </div>
         </div>
       )}

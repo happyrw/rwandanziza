@@ -11,7 +11,8 @@ import {
 import React, { useState } from "react";
 import { Button } from "../ui/button";
 import { Trash } from "lucide-react";
-import { deletePost } from "@/lib/appwrite/api";
+import { useDeletePost } from "@/lib/react-query/queriesAndMutations";
+import Loading from "@/app/Loading";
 
 const DeleteDialog = ({
   postId,
@@ -21,11 +22,12 @@ const DeleteDialog = ({
   category: string;
 }) => {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const handleDelete = async (id: string, ctg: string) => {
+  const { mutate: deletePost, isPending: loading } = useDeletePost();
+
+  const handleDelete = (id: string) => {
     const confirmDelete = confirm(
-      `This can be your last chance to keep the post. ${ctg}`
+      `This can be your last chance to keep the post.`
     );
 
     if (!confirmDelete) {
@@ -33,19 +35,18 @@ const DeleteDialog = ({
       return;
     }
 
-    setLoading(true);
-
-    try {
-      await deletePost(id, ctg);
-      alert("Post deleted successfully.");
-      setOpen(false);
-      window.location.reload();
-    } catch (error) {
-      console.error("Error deleting post:", error);
-      alert("Failed to delete the post. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    deletePost(
+      { postId: id },
+      {
+        onSuccess: () => {
+          setOpen(false);
+          window.location.reload();
+        },
+        onError: (error) => {
+          console.error("Error deleting post:", error);
+        },
+      }
+    );
   };
 
   return (
@@ -83,9 +84,10 @@ const DeleteDialog = ({
             type="button"
             variant="destructive"
             className="text-sm"
-            onClick={() => handleDelete(postId, category)}
+            onClick={() => handleDelete(postId)}
+            disabled={loading}
           >
-            {loading ? "Deleting..." : "Yes, Delete"}
+            {loading ? <Loading /> : "Yes, Delete"}
           </Button>
         </div>
       </DialogContent>

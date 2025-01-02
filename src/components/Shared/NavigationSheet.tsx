@@ -19,6 +19,7 @@ import {
 import { ArrowRight, LogOut } from "lucide-react";
 import Link from "next/link";
 import SearchField from "./SearchField";
+import DashboardComponent from "../DashboardComponent";
 
 export async function NavigationSheet() {
   return (
@@ -42,18 +43,17 @@ export async function NavigationSheet() {
         </SheetHeader>
         <div className="grid gap-4 py-6">
           <SearchField className="w-full" />
+          <SheetClose asChild>
+            <Link
+              href="/explore"
+              className="w-full text-center bg-black/15 rounded-md py-2"
+            >
+              Explore
+            </Link>
+          </SheetClose>
           <SignedIn>
             <div className="flex flex-col gap-3">
-              <Link
-                href="/dashboard?dash=74c4f6ad5bd3b882a83180e277a316074902179a1b0f7a8ed1684476ddbd23b2"
-                className={buttonVariants({
-                  size: "sm",
-                  className: "flex items-center gap-1 font-bold py-2",
-                })}
-              >
-                Dashboard ✨
-                <ArrowRight className="ml-1.5 h-5 w-5" />
-              </Link>
+              <DashboardComponent />
               <Button disabled variant="default" className="w-full">
                 Profile
               </Button>
@@ -75,9 +75,6 @@ export async function NavigationSheet() {
           </SignedOut>
         </div>
         <SheetFooter>
-          <SheetClose asChild>
-            <Link href="/explore">Explore</Link>
-          </SheetClose>
           <SheetClose asChild>
             <Button variant="ghost" className="w-full">
               Close

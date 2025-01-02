@@ -47,6 +47,12 @@ const DialogComponent = () => {
               >
                 Event <Plus />
               </Link>
+              <Link
+                className="mt-5 px-2 w-full flex justify-between bg-black rounded-md text-white py-2"
+                href={`/create?category=news&dash=${dashboardHiddenToken}`}
+              >
+                News <Plus />
+              </Link>
             </div>
           </DialogHeader>
         </DialogContent>

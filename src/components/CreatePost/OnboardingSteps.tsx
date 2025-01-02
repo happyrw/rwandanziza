@@ -1,189 +1,233 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Button } from "../ui/button"; // Ensure you have this component
-import { ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+"use client";
+import { ChevronDown } from "lucide-react";
+import React, { useState } from "react";
 
-const steps = [
-  { id: 1, label: "Enter Title" },
-  { id: 2, label: "Select Province" },
-  { id: 3, label: "Select District" },
-];
+const OnboardingSteps = () => {
+  const [hideItem, setHideItem] = useState(false);
+  return (
+    <div>
+      <div className="flex items-center justify-between">
+        <p className="font-bold text-xl capitalize">Create a Post</p>
+        <ChevronDown
+          className={`cursor-pointer transition-all duration-75 ease-out ${
+            hideItem ? "rotate-180" : "rotate-0"
+          }`}
+          onClick={() => setHideItem((prev) => !prev)}
+        />
+      </div>
 
-const provinces = ["Province 1", "Province 2"]; // Add more provinces as needed
-const districts = ["District 1", "District 2"]; // Add more districts as needed
-
-const OnboardingSteps = ({
-  category,
-  setShowOnboarding,
-}: {
-  category: string;
-  setShowOnboarding: Dispatch<SetStateAction<boolean>>;
-}) => {
-  const [loading, setLoading] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({
-    title: "",
-    province: "",
-    district: "",
-  });
-
-  useEffect(() => {
-    const savedData = localStorage.getItem("onboardingData");
-    if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
-  }, []);
-
-  const saveDataToLocalStorage = (data: any) => {
-    localStorage.setItem("onboardingData", JSON.stringify(data));
-  };
-
-  const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const handleInputChange = (e: any) => {
-    const { name, value } = e.target;
-    const updatedData = { ...formData, [name]: value };
-    setFormData(updatedData);
-    saveDataToLocalStorage(updatedData);
-  };
-
-  const handleOptionSelect = (name: string, value: string) => {
-    const updatedData = { ...formData, [name]: value };
-    setFormData(updatedData);
-    saveDataToLocalStorage(updatedData);
-  };
-
-  const leaveOnBoarding = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setShowOnboarding(false);
-      window.location.reload();
-    }, 3000);
-  };
-
-  const renderStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <div className="w-full md:w-[600px] h-[20rem] overflow-y-auto">
-            <label htmlFor="title" className="block text-2xl font-bold">
-              Title:
+      <div
+        className={`border rounded-md space-y-4 overflow-hidden transition-all duration-75 ease-out bg-black/10 ${
+          hideItem ? "h-0 p-0" : "h-fit p-4"
+        }`}
+      >
+        <div className="grid grid-cols-2 gap-2">
+          {/* Province */}
+          <div>
+            <label
+              htmlFor="province"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Province:
             </label>
-            <p className="my-[2px] text-xl">
-              You are creating {category} and you need to provide title for it{" "}
-              <br /> Do your best to make it look stunning 👌
-            </p>
             <input
               type="text"
-              name="title"
-              id="title"
-              value={formData.title}
-              onChange={handleInputChange}
-              className="w-full border-blue-700 border-2 p-4 mt-2 rounded-md"
+              name="province"
+              id="province"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
-        );
-      case 2:
-        return (
-          <div className="w-full md:w-[600px] h-[20rem] overflow-y-auto">
-            <label className="block text-2xl font-bold">Select Province:</label>
-            <p className="my-[2px] text-xl">
-              Pick your desired province and let proceed to the next step 🚶🏼‍♂️‍➡️{" "}
-              <br />
-            </p>
-            <div className="button-group">
-              {provinces.map((province) => (
-                <Button
-                  key={province}
-                  onClick={() => handleOptionSelect("province", province)}
-                  className={`border-black bg-white hover:bg-white text-black border-2 ${
-                    formData.province === province
-                      ? "bg-[#007bff] text-white border-0 hover:bg-[#007bff]"
-                      : ""
-                  }`}
-                >
-                  {province}
-                </Button>
-              ))}
-            </div>
-          </div>
-        );
-      case 3:
-        return (
-          <div className="w-full md:w-[600px] h-[20rem] overflow-y-auto">
-            <label className="block text-2xl font-bold">Select District:</label>
-            <p className="my-[2px] text-xl">
-              Almost there 🤸🏼 <br />
-            </p>
-            <p></p>
-            <div className="button-group">
-              {districts.map((district) => (
-                <Button
-                  key={district}
-                  onClick={() => handleOptionSelect("district", district)}
-                  className={`border-black bg-white hover:bg-white text-black border-2 ${
-                    formData.district === district
-                      ? "bg-[#007bff] text-white border-0 hover:bg-[#007bff]"
-                      : ""
-                  }`}
-                >
-                  {district}
-                </Button>
-              ))}
-            </div>
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
 
-  return (
-    <div className="fixed w-full h-[calc(100vh-120px)] flex items-center justify-center flex-col bg-white z-20">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentStep}
-          initial={{ opacity: 0, x: 100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          transition={{ duration: 0.5 }}
-          className="step-container"
-        >
-          {renderStep()}
-        </motion.div>
-      </AnimatePresence>
-      <div className="button-container w-[600px] gap-3">
-        {currentStep > 1 && (
-          <Button onClick={handleBack} className="mt-5 w-full">
-            <ArrowLeft /> Back
-          </Button>
-        )}
-        {currentStep < steps.length ? (
-          <Button onClick={handleNext} className="mt-5 w-full">
-            Next <ArrowRight />
-          </Button>
-        ) : (
-          <Button
-            className="w-full mt-5"
-            disabled={
-              !formData.district || !formData.province || !formData.title
-            }
-            onClick={leaveOnBoarding}
+          {/* District */}
+          <div>
+            <label
+              htmlFor="district"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              District:
+            </label>
+            <input
+              type="text"
+              name="district"
+              id="district"
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 space-y-4 items-start">
+          {/* Explore Categories */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Explore Categories:
+            </p>
+            {["Beaches", "Mountains", "Forests", "Historical Sites"].map(
+              (category) => (
+                <label key={category} className="block text-gray-600 mb-1">
+                  <input
+                    type="checkbox"
+                    name="exploreCategories"
+                    value={category}
+                    className="mr-2 accent-sky-600"
+                  />
+                  {category}
+                </label>
+              )
+            )}
+          </div>
+
+          {/* Amenities */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Amenities:</p>
+            {["Parking", "Wi-Fi", "Swimming Pool", "Restaurant"].map(
+              (amenity) => (
+                <label key={amenity} className="block text-gray-600 mb-1">
+                  <input
+                    type="checkbox"
+                    name="amenities"
+                    value={amenity}
+                    className="mr-2 accent-sky-600"
+                  />
+                  {amenity}
+                </label>
+              )
+            )}
+          </div>
+
+          {/* Property Class */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Property Class:
+            </p>
+            {["5 Star", "4 Star", "3 Star", "Budget"].map((propertyClass) => (
+              <label key={propertyClass} className="block text-gray-600 mb-1">
+                <input
+                  type="checkbox"
+                  name="propertyClass"
+                  value={propertyClass}
+                  className="mr-2 accent-sky-600"
+                />
+                {propertyClass}
+              </label>
+            ))}
+          </div>
+
+          {/* Cities */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">Cities:</p>
+            {["Kigali", "Gisenyi", "Musanze", "Huye"].map((city) => (
+              <label key={city} className="block text-gray-600 mb-1">
+                <input
+                  type="checkbox"
+                  name="cities"
+                  value={city}
+                  className="mr-2 accent-sky-600"
+                />
+                {city}
+              </label>
+            ))}
+          </div>
+
+          {/* Popular Locations */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Popular Locations:
+            </p>
+            {[
+              "Lake Kivu",
+              "Nyungwe Forest",
+              "Volcanoes National Park",
+              "Kimironko Market",
+            ].map((location) => (
+              <label key={location} className="block text-gray-600 mb-1">
+                <input
+                  type="checkbox"
+                  name="popularLocations"
+                  value={location}
+                  className="mr-2 accent-sky-600"
+                />
+                {location}
+              </label>
+            ))}
+          </div>
+
+          {/* Traveller Experience */}
+          <div>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Traveller Experience:
+            </p>
+            {["Adventure", "Relaxation", "Cultural", "Luxury"].map(
+              (experience) => (
+                <label key={experience} className="block text-gray-600 mb-1">
+                  <input
+                    type="checkbox"
+                    name="travelerExperience"
+                    value={experience}
+                    className="mr-2 accent-sky-600"
+                  />
+                  {experience}
+                </label>
+              )
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-[2px]">
+          <div className="flex-grow">
+            <label
+              htmlFor="latitude"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Latitude:
+            </label>
+            <input
+              type="number"
+              name="latitude"
+              id="latitude"
+              // value={formData.latitude}
+              // onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+
+          <div className="flex-grow">
+            <label
+              htmlFor="longitude"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Longitude:
+            </label>
+            <input
+              type="number"
+              name="longitude"
+              id="longitude"
+              // value={formData.longitude}
+              // onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label
+            htmlFor="youtubeUrl"
+            className="block text-sm font-medium text-gray-700"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Done"}{" "}
-            <ArrowRight />
-          </Button>
-        )}
+            YouTube Video URL:
+          </label>
+          <input
+            type="url"
+            name="youtubeUrl"
+            id="youtubeUrl"
+            // value={formData.youtubeUrl}
+            // onChange={handleChange}
+            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          />
+        </div>
       </div>
     </div>
   );

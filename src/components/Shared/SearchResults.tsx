@@ -1,4 +1,4 @@
-import GridPostList from "@/app/explore/GridPostList";
+import GridPostList from "@/app/(root)/explore/GridPostList";
 import Loading from "@/app/Loading";
 import { Models } from "node-appwrite";
 import React from "react";

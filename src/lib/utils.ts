@@ -101,6 +101,48 @@ export const formatLikes = (likes: number): string => {
   return likes.toString();
 };
 
+export const experience = [
+  {
+    url: "https://images.unsplash.com/photo-1560347876-aeef00ee58a1",
+    name: "Traditional Intore Dance",
+    caption:
+      "Experience the elegance and energy of Rwanda's traditional Intore dance, a celebration of culture and pride.",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1556761175-4b46a572b786",
+    name: "Local Cuisine Tastings",
+    caption:
+      "Indulge in Rwanda's delicious local dishes like brochettes, ugali, and the famous isombe.",
+  },
+  {
+    url: "https://images.pexels.com/photos/1441021/pexels-photo-1441021.jpeg",
+    name: "Handcrafted Arts & Crafts",
+    caption:
+      "Explore unique, handmade crafts such as traditional Agaseke baskets and vibrant Imigongo art.",
+  },
+];
+
+export const activities = [
+  {
+    name: "Gorilla Trekking",
+    caption:
+      "Embark on a thrilling journey to observe majestic mountain gorillas in their natural habitat.",
+    src: "/rwanda3.jpg", // Replace with your actual image path
+  },
+  {
+    name: "Hiking Volcanoes",
+    caption:
+      "Conquer the peaks of dormant volcanoes while enjoying panoramic views and lush greenery.",
+    src: "/rwanda3.jpg", // Replace with your actual image path
+  },
+  {
+    name: "Kayaking on Lake Kivu",
+    caption:
+      "Paddle through serene waters, explore hidden coves, and enjoy the tranquility of Lake Kivu.",
+    src: "/rwanda3.jpg", // Replace with your actual image path
+  },
+];
+
 {
   /*
 

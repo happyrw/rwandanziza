@@ -7,10 +7,11 @@ import {
 import { QUERY_KEYS } from "./queryKeys";
 import {
   createPost,
+  deletePost,
   fetchPostByPostId,
+  // fetchPostBySubCategory,
   getInfinitePosts,
-  getRecentPosts,
-  likeEvent,
+  // getRecentPosts,
   likePost,
   searchPosts,
   updatePost,
@@ -33,19 +34,11 @@ export const useCreatePost = () => {
   });
 };
 
-export const useGetRecentPosts = () => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-    queryFn: getRecentPosts,
-  });
-};
-
 export const useUpdatePost = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ payload, category }: { payload: any; category: string }) =>
-      updatePost(payload, category),
+    mutationFn: ({ payload }: { payload: any }) => updatePost(payload),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data],
@@ -66,7 +59,7 @@ export const useLikePost = () => {
       postId: string;
       category: string;
       likesArray: string[];
-    }) => likePost(postId, category, likesArray),
+    }) => likePost(postId, likesArray),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_BY_ID, data],
@@ -81,92 +74,58 @@ export const useLikePost = () => {
   });
 };
 
-export const useGetPostById = (postId: string, category: string) => {
+export const useGetPostById = (postId: string) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId, category],
-    queryFn: () => fetchPostByPostId(postId, category),
+    queryKey: [QUERY_KEYS.GET_POST_BY_ID, postId],
+    queryFn: () => fetchPostByPostId(postId),
     enabled: !!postId,
   });
 };
 
 export const useSearchPosts = (searchTerm: string) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.SEARCH_POSTS, searchTerm],
+    queryKey: [QUERY_KEYS.GET_POST_BY_ID, searchTerm],
     queryFn: () => searchPosts(searchTerm),
     enabled: !!searchTerm,
   });
 };
 
-export const useGetPosts = (
-  category: "event" | "economic" | "district" | "province"
-) => {
+export const useGetPosts = (category?: string) => {
   //@ts-ignore
   return useInfiniteQuery({
-    queryKey: [QUERY_KEYS.GET_INFINITE_POSTS, category], // Include category in the query key
-    queryFn: ({ pageParam }) => getInfinitePosts({ pageParam, category }), // Pass category to the query function
+    queryKey: [QUERY_KEYS.GET_INFINITE_POSTS, category],
+    queryFn: ({ pageParam }) => getInfinitePosts({ pageParam, category }),
     getNextPageParam: (lastPage: any) => {
-      // Stop fetching if there are no more documents
       if (!lastPage.hasMore) return null;
-
-      return lastPage.nextCursor; // Use the cursor from the last page
+      return lastPage.nextCursor;
     },
   });
 };
 
-// export const useDeletePost = () => {
-//   const queryClient = useQueryClient();
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
 
-//   return useMutation({
-//     mutationFn: ({ postId, imageId }: { postId: string; imageId: string }) =>
-//       deletePost(postId, imageId),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-//       });
-//     },
+  return useMutation({
+    mutationFn: ({ postId }: { postId: string }) => deletePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+    },
+  });
+};
+
+// export const useGetRecentPosts = () => {
+//   return useQuery({
+//     queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+//     queryFn: getRecentPosts,
 //   });
 // };
 
-// // Likes and Saves
-
-// export const useSavePost = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: ({ postId, userId }: { postId: string; userId: string }) =>
-//       savePost(postId, userId),
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_POSTS],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
-//       });
-//     },
-//   });
-// };
-
-// export const useDeleteSavedPost = () => {
-//   const queryClient = useQueryClient();
-
-//   return useMutation({
-//     mutationFn: async ({ savedRecordId }: { savedRecordId: string }) => {
-//       console.log("savedRecordId in mutation", savedRecordId);
-//       return deleteSavedPost(savedRecordId);
-//     },
-//     onSuccess: () => {
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_POSTS],
-//       });
-//       queryClient.invalidateQueries({
-//         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
-//       });
-//     },
+// export const useGetPostBySubcategory = (subcategory: string) => {
+//   return useQuery({
+//     queryKey: [QUERY_KEYS.SEARCH_POSTS, subcategory],
+//     queryFn: () => fetchPostBySubCategory(subcategory),
+//     enabled: !!subcategory,
 //   });
 // };

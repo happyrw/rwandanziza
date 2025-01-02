@@ -1,14 +1,15 @@
 "use client";
+import Loading from "@/app/Loading";
+import { useGetPostById } from "@/lib/react-query/queriesAndMutations";
 import { formatTimeAgo } from "@/lib/utils";
 import { format } from "date-fns";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense } from "react";
 import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import ImageDialog from "./Shared/ImageDialog";
 import LoaderComponent from "./Shared/LoaderComponent";
 import { CommentSheet } from "./Shared/commentSheet";
-import { useGetPostById } from "@/lib/react-query/queriesAndMutations";
 
 export default function PostDetailsComponent() {
   return (
@@ -24,13 +25,13 @@ const Content: React.FC = () => {
   const category = searchParam.get("category");
   const postId = searchParam.get("postId");
 
-  const { data: post, isPending: loading } = useGetPostById(postId!, category!);
+  const { data: post, isPending: loading } = useGetPostById(postId!);
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
   if (!post) return <LoaderComponent />;
 
   return (
-    <div className="container my-4 mx-auto p-6 bg-white rounded-lg">
+    <div className="container my-4 mx-auto p-2 md:p-4 lg:p-20 bg-white rounded-lg border">
       <h1 className="text-4xl font-extrabold text-gray-800 mb-6 border-b-2 pb-2">
         {post.title}
       </h1>

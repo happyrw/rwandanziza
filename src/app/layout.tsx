@@ -1,11 +1,8 @@
+import { QueryProvider } from "@/lib/react-query/QueryProvider";
+import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Lora } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Shared/Navbar";
-import { Toaster } from "@/components/ui/toaster";
-import Footer from "@/components/Shared/Footer";
-import { ClerkProvider } from "@clerk/nextjs";
-import { QueryProvider } from "@/lib/react-query/QueryProvider";
 
 const lora = Lora({ subsets: ["latin"] });
 
@@ -26,12 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <QueryProvider>
         <ClerkProvider>
-          <body className={lora.className}>
-            <Navbar />
-            {children}
-            <Footer />
-            <Toaster />
-          </body>
+          <body className={lora.className}>{children}</body>
         </ClerkProvider>
       </QueryProvider>
     </html>

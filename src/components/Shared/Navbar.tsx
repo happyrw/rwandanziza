@@ -15,6 +15,7 @@ import { buttonVariants } from "../ui/button";
 import Image from "next/image";
 import SearchField from "./SearchField";
 import { NavigationSheet } from "./NavigationSheet";
+import DashboardComponent from "../DashboardComponent";
 
 const Navbar = async () => {
   const user = await currentUser();
@@ -28,7 +29,7 @@ const Navbar = async () => {
           <Link href="/" className="flex items-center gap-2">
             <Image
               src="/rwanda.png"
-              alt="Flow Shop logo"
+              alt={`Rwandanziza logo ${" "}`}
               width={30}
               height={30}
             />
@@ -48,16 +49,7 @@ const Navbar = async () => {
               <>
                 <div className="h-8 w-px bg-zinc-200 hidden md:block" />
                 <SignOutButton />
-                <Link
-                  href="/dashboard?dash=74c4f6ad5bd3b882a83180e277a316074902179a1b0f7a8ed1684476ddbd23b2"
-                  className={buttonVariants({
-                    size: "sm",
-                    className: "flex items-center gap-1",
-                  })}
-                >
-                  Dashboard ✨
-                  <ArrowRight className="ml-1.5 h-5 w-5" />
-                </Link>
+                <DashboardComponent />
               </>
             </SignedIn>
             <SignedOut>

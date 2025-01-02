@@ -24,6 +24,7 @@ interface PayloadData {
   title: string;
   userId: string;
   tiptap: string;
+  subCategory: string;
   province: string;
   youtubeUrl?: string;
   subServices: SubService[];

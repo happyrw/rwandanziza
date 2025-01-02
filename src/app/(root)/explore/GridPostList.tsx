@@ -9,9 +9,9 @@ const GridPostList = ({ posts }: { posts: any[] }) => {
       {posts.map((post) => (
         <div
           key={post.$id}
-          className="border rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow duration-300 flex md:min-h-48"
+          className="border rounded-lg overflow-hidden bg-white hover:shadow-sm transition-shadow duration-300 flex md:min-h-56"
         >
-          <div className="relative w-1/2 h-full">
+          <div className="relative aspect-video w-[200px] md:w-[250px] h-full">
             <img
               src={post.images[0]}
               alt="post-image"

@@ -29,9 +29,8 @@ export default function CreatePostComponent() {
 }
 
 const Content: React.FC = () => {
-  // const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [done, setDone] = useState(false);
+  const [done, setDone] = useState(true);
   const [buttonText, setButtonText] = useState("Submit");
   const [formValues, setFormValues] = useState({
     title: "",
@@ -54,7 +53,7 @@ const Content: React.FC = () => {
     ],
   });
 
-  const [showOnboarding, setShowOnboarding] = useState(false);
+  // const [showOnboarding, setShowOnboarding] = useState(false);
 
   const searchParam = useSearchParams();
   const category = searchParam.get("category");
@@ -78,7 +77,7 @@ const Content: React.FC = () => {
           // setLoading(true);
 
           // Fetch post by productId
-          const post = (await fetchPostByPostId(productId, category)) as any;
+          const post = (await fetchPostByPostId(productId)) as any;
 
           // Map images to URLs if they exist
           const isValidDate = !isNaN(Date.parse(post.date));
@@ -127,17 +126,13 @@ const Content: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (category && !formValues.title) {
-      setShowOnboarding(true);
-    } else {
-      setShowOnboarding(false);
-    }
-  }, [category, formValues]);
-
-  useEffect(() => {
-    console.log(showOnboarding);
-  }, [showOnboarding]);
+  // useEffect(() => {
+  //   if (category && !formValues.title) {
+  //     setShowOnboarding(true);
+  //   } else {
+  //     setShowOnboarding(false);
+  //   }
+  // }, [category, formValues]);
 
   useEffect(() => {
     if (formValues.title) {
@@ -212,7 +207,7 @@ const Content: React.FC = () => {
     try {
       if (productId) {
         // Update logic
-        await updatePost({ payload, category });
+        await updatePost({ payload });
         setButtonText("Redirecting...");
         localStorage.removeItem("onboardingData");
         toast({
@@ -249,23 +244,20 @@ const Content: React.FC = () => {
   return (
     <div className="mb-10">
       {(productId && !formData.images.length) ||
-      (productId && formData.tiptap === "") ||
-      (!formValues.title && !showOnboarding) ? (
+      (productId && !formValues.title) ? (
         <LoaderComponent />
       ) : (
         <>
-          {showOnboarding && (
-            <OnboardingSteps
-              category={category}
-              setShowOnboarding={setShowOnboarding}
-            />
-          )}
           {!preview && (
-            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-10 p-2 md:p-[70px] bg-white shadow-lg rounded-md mx-auto border-2">
+            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-10 p-2 md:p-[30px] bg-white shadow-lg rounded-md mx-auto border-2">
               <form onSubmit={handleSubmit} className="relative space-y-6">
                 {done && (
                   <div className="absolute z-10 h-full bg-white/50 w-full top-0 bottom-0 right-0 left-0"></div>
                 )}
+                {/* POST REQUIREMENTS */}
+                <OnboardingSteps />
+                {/* POST */}
+                <p className="font-bold text-xl capitalize">actual post</p>
                 <div>
                   <label
                     htmlFor="title"
@@ -307,59 +299,6 @@ const Content: React.FC = () => {
                     onChange={(value) =>
                       setFormData({ ...formData, tiptap: value })
                     }
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="latitude"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Latitude:
-                  </label>
-                  <input
-                    type="number"
-                    name="latitude"
-                    id="latitude"
-                    value={formData.latitude}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="longitude"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Longitude:
-                  </label>
-                  <input
-                    type="number"
-                    name="longitude"
-                    id="longitude"
-                    value={formData.longitude}
-                    onChange={handleChange}
-                    required
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="youtubeUrl"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    YouTube Video URL:
-                  </label>
-                  <input
-                    type="url"
-                    name="youtubeUrl"
-                    id="youtubeUrl"
-                    value={formData.youtubeUrl}
-                    onChange={handleChange}
-                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
 
