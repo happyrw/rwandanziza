@@ -1,8 +1,8 @@
 "use client";
-import Loading from "@/app/Loading";
 import { useGetPostById } from "@/lib/react-query/queriesAndMutations";
 import { formatTimeAgo } from "@/lib/utils";
 import { format } from "date-fns";
+import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Zoom from "react-medium-image-zoom";
@@ -10,10 +10,17 @@ import "react-medium-image-zoom/dist/styles.css";
 import ImageDialog from "./Shared/ImageDialog";
 import LoaderComponent from "./Shared/LoaderComponent";
 import { CommentSheet } from "./Shared/commentSheet";
+import Loading from "@/app/Loading";
 
 export default function PostDetailsComponent() {
   return (
-    <Suspense fallback={<p>Loading...</p>}>
+    <Suspense
+      fallback={
+        <div className="h-screen pt-10">
+          <Loading />
+        </div>
+      }
+    >
       <Content />
     </Suspense>
   );
@@ -27,7 +34,12 @@ const Content: React.FC = () => {
 
   const { data: post, isPending: loading } = useGetPostById(postId!);
 
-  if (loading) return <Loading />;
+  if (loading)
+    return (
+      <div className="h-screen pt-20">
+        <Loader2 className="mx-auto animate-spin h-10 w-10" />
+      </div>
+    );
   if (!post) return <LoaderComponent />;
 
   return (

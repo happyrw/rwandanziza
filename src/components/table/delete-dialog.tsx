@@ -10,9 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import React, { useState } from "react";
 import { Button } from "../ui/button";
-import { Trash } from "lucide-react";
+import { Loader2, Trash } from "lucide-react";
 import { useDeletePost } from "@/lib/react-query/queriesAndMutations";
-import Loading from "@/app/Loading";
 
 const DeleteDialog = ({
   postId,
@@ -87,7 +86,11 @@ const DeleteDialog = ({
             onClick={() => handleDelete(postId)}
             disabled={loading}
           >
-            {loading ? <Loading /> : "Yes, Delete"}
+            {loading ? (
+              <Loader2 className="mx-auto animate-spin h-10 w-10" />
+            ) : (
+              "Yes, Delete"
+            )}
           </Button>
         </div>
       </DialogContent>

@@ -23,10 +23,13 @@ const Navbar = async () => {
   const isAdmin = emailAddress === process.env.ADMIN_EMAIL;
 
   return (
-    <nav className="sticky z-20 h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all">
+    <nav className="sticky z-20 h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all px-3">
       <MaxWidthWrapper>
         <div className="flex h-full items-center justify-between border-b border-zinc-200 remove-scrollbar">
-          <Link href="/" className="flex items-center gap-2">
+          <Link
+            href="/"
+            className="flex items-center gap-2 font-bold text-[10px] md:text-sm lg:text-lg"
+          >
             <Image
               src="/rwanda.png"
               alt={`Rwandanziza logo ${" "}`}

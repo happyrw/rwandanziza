@@ -101,6 +101,240 @@ export const formatLikes = (likes: number): string => {
   return likes.toString();
 };
 
+export const subCategory = {
+  Hotels: {
+    items: [
+      {
+        name: "5-star",
+        description: "Luxury accommodations with premium amenities.",
+      },
+      {
+        name: "4-star",
+        description: "High-quality accommodations with excellent service.",
+      },
+      {
+        name: "3-star",
+        description: "Comfortable hotels with essential services.",
+      },
+      {
+        name: "2-star",
+        description: "Budget-friendly hotels with basic facilities.",
+      },
+      {
+        name: "Boutique Hotels",
+        description: "Small, stylish hotels with personalized service.",
+      },
+      {
+        name: "Budget Hotels",
+        description: "Affordable stays for travelers on a budget.",
+      },
+      {
+        name: "Resorts",
+        description: "Relaxing stays with extensive leisure facilities.",
+      },
+      {
+        name: "Hostels",
+        description: "Shared, affordable lodging for backpackers.",
+      },
+    ],
+  },
+  Restaurants: {
+    items: [
+      {
+        name: "Fine Dining",
+        description: "Upscale restaurants offering gourmet cuisine.",
+      },
+      {
+        name: "Casual Dining",
+        description: "Relaxed settings with a variety of meals.",
+      },
+      {
+        name: "Cafés",
+        description: "Coffee shops serving snacks and beverages.",
+      },
+      {
+        name: "Fast Food",
+        description: "Quick-service restaurants for on-the-go meals.",
+      },
+      {
+        name: "Street Food",
+        description: "Authentic local cuisine served outdoors.",
+      },
+      { name: "Vegetarian/Vegan", description: "Plant-based dining options." },
+    ],
+  },
+  Gyms: {
+    items: [
+      {
+        name: "Health Clubs",
+        description: "Fitness centers with a range of facilities.",
+      },
+      {
+        name: "Yoga Studios",
+        description: "Spaces dedicated to yoga and mindfulness.",
+      },
+      {
+        name: "CrossFit Gyms",
+        description: "High-intensity functional training gyms.",
+      },
+      {
+        name: "Pilates Studios",
+        description: "Studios offering pilates for flexibility and strength.",
+      },
+      {
+        name: "Martial Arts Centers",
+        description: "Training centers for martial arts disciplines.",
+      },
+    ],
+  },
+  Churches: {
+    items: [
+      {
+        name: "Historical Churches",
+        description: "Churches with rich historical significance.",
+      },
+      {
+        name: "Temples",
+        description: "Places of worship for various religions.",
+      },
+      { name: "Mosques", description: "Islamic places of worship." },
+      { name: "Synagogues", description: "Jewish places of worship." },
+      {
+        name: "Shrines",
+        description: "Sacred places for worship and reflection.",
+      },
+    ],
+  },
+  Parks: {
+    items: [
+      {
+        name: "National Parks",
+        description: "Protected areas for wildlife and nature.",
+      },
+      { name: "City Parks", description: "Green spaces within urban areas." },
+      {
+        name: "Botanical Gardens",
+        description: "Gardens featuring diverse plant species.",
+      },
+      {
+        name: "Nature Reserves",
+        description: "Conservation areas for flora and fauna.",
+      },
+      {
+        name: "Beaches",
+        description: "Coastal areas for relaxation and recreation.",
+      },
+      {
+        name: "Hiking Trails",
+        description: "Paths for outdoor walking and exploration.",
+      },
+    ],
+  },
+  GenocideMemorials: {
+    items: [
+      {
+        name: "Genocide Memorial Sites",
+        description: "Sites commemorating victims of genocide.",
+      },
+      {
+        name: "Holocaust Museums",
+        description: "Museums dedicated to Holocaust remembrance.",
+      },
+      {
+        name: "War Memorials",
+        description: "Monuments honoring soldiers and war victims.",
+      },
+    ],
+  },
+  Entertainment: {
+    items: [
+      { name: "Cinemas", description: "Theaters showing the latest movies." },
+      {
+        name: "Theatres",
+        description: "Venues for live drama and performances.",
+      },
+      {
+        name: "Nightclubs",
+        description: "Places for music, dancing, and nightlife.",
+      },
+      {
+        name: "Casinos",
+        description: "Venues offering gambling and entertainment.",
+      },
+      {
+        name: "Amusement Parks",
+        description: "Parks with rides and attractions for fun.",
+      },
+    ],
+  },
+  Shopping: {
+    items: [
+      {
+        name: "Malls",
+        description: "Large shopping centers with diverse stores.",
+      },
+      {
+        name: "Souvenir Shops",
+        description: "Shops offering local crafts and gifts.",
+      },
+      {
+        name: "Flea Markets",
+        description: "Outdoor markets selling unique and second-hand items.",
+      },
+      {
+        name: "Art Galleries",
+        description: "Spaces showcasing art exhibitions and sales.",
+      },
+    ],
+  },
+  Adventure: {
+    items: [
+      {
+        name: "Zip-lining",
+        description: "High-speed rides through treetops or canyons.",
+      },
+      { name: "Rafting", description: "White-water river adventures." },
+      { name: "Kayaking", description: "Water adventures in narrow boats." },
+      {
+        name: "Mountain Biking",
+        description: "Cycling on challenging off-road trails.",
+      },
+      {
+        name: "Rock Climbing",
+        description: "Climbing activities on natural or artificial surfaces.",
+      },
+    ],
+  },
+  Sauna: {
+    items: [
+      {
+        name: "Finnish Sauna",
+        description: "Traditional dry heat sauna with high temperatures.",
+      },
+      {
+        name: "Infrared Sauna",
+        description: "Uses infrared light to directly heat the body.",
+      },
+      {
+        name: "Steam Rooms",
+        description: "High humidity rooms with lower temperatures.",
+      },
+      {
+        name: "Salt Sauna",
+        description: "Infused with salt to promote relaxation and skin health.",
+      },
+      {
+        name: "Bio Sauna",
+        description: "Lower temperature sauna with added aromatherapy.",
+      },
+      {
+        name: "Ice Sauna",
+        description: "Alternates between heat and ice for unique relaxation.",
+      },
+    ],
+  },
+};
+
 export const experience = [
   {
     url: "https://images.unsplash.com/photo-1560347876-aeef00ee58a1",

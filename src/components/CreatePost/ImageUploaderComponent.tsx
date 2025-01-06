@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FileWithPath, useDropzone } from "react-dropzone";
 import { Button } from "../ui/button";
-import { X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { createFile, deleteFile } from "@/lib/appwrite/api"; // Adjust the import path as necessary
 
 type FileUploadProps = {
@@ -11,6 +11,7 @@ type FileUploadProps = {
 
 const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
   const [files, setFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [fileUrls, setFileUrls] =
     useState<{ id: string; url: string }[]>(mediaUrl); // Changed to store objects with id and url
 
@@ -31,6 +32,7 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
 
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[]) => {
+      setUploading(true);
       const newFiles = [...files, ...acceptedFiles];
       setFiles(newFiles);
 
@@ -47,12 +49,14 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
         newFiles,
         allFileUrls.map((file) => file.url)
       ); // Pass only the URLs
+      setUploading(false);
     },
     [files, fileUrls, fieldChange, mediaUrl]
   );
 
   const handleRemoveFile = async (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
+    setUploading(true); // Start uploading status
 
     const fileIdToDelete = fileUrls[index]?.id;
     if (fileIdToDelete) {
@@ -74,6 +78,7 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
         console.log("Failed to delete the file from storage.");
       }
     }
+    setUploading(false);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -87,7 +92,7 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
   return (
     <div
       {...getRootProps()}
-      className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 hover:border-blue-500 sm:text-sm"
+      className="relative mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 hover:border-blue-500 sm:text-sm"
     >
       <input {...getInputProps()} />
       {fileUrls.length > 0 ? (
@@ -133,6 +138,11 @@ const ImageUploaderComponent = ({ fieldChange, mediaUrl }: FileUploadProps) => {
           >
             Select from computer
           </Button>
+        </div>
+      )}
+      {uploading && (
+        <div className="absolute h-full bg-white/85 w-full top-0 bottom-0 left-0 right-0 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin" />
         </div>
       )}
     </div>

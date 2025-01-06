@@ -6,19 +6,18 @@ import ErrorComponent from "../Shared/ErrorComponent";
 import OnboardingSteps from "./OnboardingSteps";
 import TiptapComponent from "./Tiptap/TiptapComponent";
 
-import Loading from "@/app/Loading";
 import { useToast } from "@/hooks/use-toast";
 import { fetchPostByPostId } from "@/lib/appwrite/api";
-import { Eye, EyeClosed } from "lucide-react";
+import {
+  useCreatePost,
+  useUpdatePost,
+} from "@/lib/react-query/queriesAndMutations";
+import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import LoaderComponent from "../Shared/LoaderComponent";
 import ImageUploaderComponent from "./ImageUploaderComponent";
 import PreviewComponent from "./PreviewComponent";
-import {
-  useCreatePost,
-  useUpdatePost,
-} from "@/lib/react-query/queriesAndMutations";
 
 export default function CreatePostComponent() {
   return (
@@ -30,19 +29,21 @@ export default function CreatePostComponent() {
 
 const Content: React.FC = () => {
   const [preview, setPreview] = useState(false);
-  const [done, setDone] = useState(true);
+  const [done, setDone] = useState(false);
   const [buttonText, setButtonText] = useState("Submit");
   const [formValues, setFormValues] = useState({
-    title: "",
     province: "",
     district: "",
+    subCategory: "",
+    item: "",
+    city: "",
   });
   const [formData, setFormData] = useState({
     date: new Date(),
     title: "",
     tiptap: "",
-    latitude: "",
     images: [] as File[] | string[],
+    latitude: "",
     longitude: "",
     youtubeUrl: "",
     subServices: [
@@ -68,6 +69,13 @@ const Content: React.FC = () => {
   const { toast } = useToast();
   if (hiddenToken !== process.env.NEXT_PUBLIC_DASHBOARD_HIDDEN_TOKEN)
     return notFound();
+
+  // Save images from localStorage on mount
+  // useEffect(() => {
+  //   if (formData.images && formData.images.length > 0) {
+  //     localStorage.setItem("postImages", JSON.stringify(formData.images));
+  //   }
+  // }, [formData.images]);
 
   // Fetch the existing post if `productId` exists
   useEffect(() => {
@@ -101,9 +109,11 @@ const Content: React.FC = () => {
 
           // Update form values
           setFormValues({
-            title: post.title || "",
             province: post.province || "",
             district: post.district || "",
+            subCategory: post.subCategory || "",
+            item: post.item || "",
+            city: post.city || "",
           });
         } catch (error: any) {
           // Handle errors
@@ -119,12 +129,27 @@ const Content: React.FC = () => {
     fetchPost();
   }, [productId, category, toast]);
 
-  useEffect(() => {
-    const savedData = localStorage.getItem("onboardingData");
-    if (savedData) {
-      setFormValues(JSON.parse(savedData));
-    }
-  }, []);
+  // Retrieve images from localStorage on mount
+  // useEffect(() => {
+  //   const storedImages = localStorage.getItem("postImages");
+  //   if (storedImages) {
+  //     setFormData((prevFormData) => ({
+  //       ...prevFormData,
+  //       images: JSON.parse(storedImages),
+  //     }));
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const savedData = localStorage.getItem("onboardingData");
+  //   if (savedData) {
+  //     setFormValues(JSON.parse(savedData));
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   localStorage.clear();
+  // }, []);
 
   // useEffect(() => {
   //   if (category && !formValues.title) {
@@ -134,14 +159,14 @@ const Content: React.FC = () => {
   //   }
   // }, [category, formValues]);
 
-  useEffect(() => {
-    if (formValues.title) {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        title: formValues.title,
-      }));
-    }
-  }, [formValues]);
+  // useEffect(() => {
+  //   if (formValues.title) {
+  //     setFormData((prevFormData) => ({
+  //       ...prevFormData,
+  //       title: formValues.title,
+  //     }));
+  //   }
+  // }, [formValues]);
 
   if (!category) return <ErrorComponent text="No category provided !" />;
 
@@ -152,12 +177,12 @@ const Content: React.FC = () => {
 
   const handleImageChange = (index: number, files: File[], urls: string[]) => {
     const updatedSubServices = [...formData.subServices];
-    updatedSubServices[index].images = urls; // Use URLs instead of files
+    updatedSubServices[index].images = urls;
     setFormData({ ...formData, subServices: updatedSubServices });
   };
 
   const handleFileChange = (files: File[], urls: string[]) => {
-    setFormData({ ...formData, images: urls }); // Update the state with URLs
+    setFormData({ ...formData, images: urls });
   };
 
   const handleTiptapChange = useCallback(
@@ -195,6 +220,9 @@ const Content: React.FC = () => {
       postId: productId,
       province: formValues.province,
       district: formValues.district,
+      subCategory: formValues.subCategory,
+      item: formValues.item,
+      city: formValues.city,
       subServices: formData.subServices.map((subService: any) => ({
         ...subService,
         images: [...subService.images],
@@ -243,21 +271,26 @@ const Content: React.FC = () => {
 
   return (
     <div className="mb-10">
-      {(productId && !formData.images.length) ||
-      (productId && !formValues.title) ? (
+      {productId && !formData.images.length ? (
         <LoaderComponent />
       ) : (
         <>
           {!preview && (
-            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-10 p-2 md:p-[30px] bg-white shadow-lg rounded-md mx-auto border-2">
+            <div className="w-full md:min-w-[42rem] max-w-[42rem] mt-2 lg:mt-10 p-2 md:p-[30px] bg-white shadow-sm rounded-md mx-auto">
               <form onSubmit={handleSubmit} className="relative space-y-6">
                 {done && (
                   <div className="absolute z-10 h-full bg-white/50 w-full top-0 bottom-0 right-0 left-0"></div>
                 )}
                 {/* POST REQUIREMENTS */}
-                <OnboardingSteps />
+                <OnboardingSteps
+                  formValues={formValues}
+                  formData={formData}
+                  setFormData={setFormData}
+                  setFormValues={setFormValues}
+                  category={category}
+                />
                 {/* POST */}
-                <p className="font-bold text-xl capitalize">actual post</p>
+                <p className="font-bold text-2xl capitalize">actual post</p>
                 <div>
                   <label
                     htmlFor="title"
@@ -278,10 +311,7 @@ const Content: React.FC = () => {
                 </div>
 
                 <div>
-                  <label
-                    htmlFor="title"
-                    className="block text-sm font-medium text-gray-700"
-                  >
+                  <label className="block text-sm font-medium text-gray-700">
                     Images:
                   </label>
                   <ImageUploaderComponent
@@ -384,7 +414,7 @@ const Content: React.FC = () => {
                   className="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                   {isLoadingCreate || isLoadingUpdate ? (
-                    <Loading />
+                    <Loader2 className="mx-auto animate-spin h-10 w-10" />
                   ) : (
                     buttonText
                   )}

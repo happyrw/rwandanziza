@@ -13,7 +13,7 @@ const SearchResults = ({
 }: SearchResultProp) => {
   if (isSearchFetching) {
     return (
-      <div className="mt-10">
+      <div className="h-screen pt-10">
         <Loading />
       </div>
     );
@@ -23,9 +23,16 @@ const SearchResults = ({
   }
 
   return (
-    <p className="text-light-4 mt-10 text-center w-full">
-      No results found or change category
-    </p>
+    <div className="w-full h-screen flex flex-col items-center justify-start  mt-10">
+      <img
+        src="/animation.gif"
+        alt="End of posts animation"
+        className="w-24 mb-4"
+      />
+      <p className="text-light-4 font-semibold">
+        No results found matches your search criteria
+      </p>
+    </div>
   );
 };
 

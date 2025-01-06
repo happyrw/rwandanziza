@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -16,7 +16,7 @@ import {
   SignOutButton,
   SignUpButton,
 } from "@clerk/nextjs";
-import { ArrowRight, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import SearchField from "./SearchField";
 import DashboardComponent from "../DashboardComponent";
@@ -29,7 +29,7 @@ export async function NavigationSheet() {
           <img src="/icons/menu.svg" alt="menu" width={30} height={30} />
         </Button>
       </SheetTrigger>
-      <SheetContent>
+      <SheetContent className="w-[70%]">
         <span tabIndex={0} />
         <SheetHeader>
           <SheetTitle>
@@ -41,42 +41,42 @@ export async function NavigationSheet() {
             <SignedOut>Sign in or create an account to get started.</SignedOut>
           </SheetDescription>
         </SheetHeader>
-        <div className="grid gap-4 py-6">
-          <SearchField className="w-full" />
-          <SheetClose asChild>
+        <SearchField className="w-full mt-2" />
+        <SheetClose asChild>
+          <div className="grid gap-4 py-6 border my-2 px-2 border-gray-200 rounded-lg">
             <Link
               href="/explore"
               className="w-full text-center bg-black/15 rounded-md py-2"
             >
               Explore
             </Link>
-          </SheetClose>
-          <SignedIn>
-            <div className="flex flex-col gap-3">
-              <DashboardComponent />
-              <Button disabled variant="default" className="w-full">
-                Profile
-              </Button>
-              <div className="bg-red-700 text-white font-bold py-2 flex items-center justify-center gap-5 rounded-md">
-                <LogOut /> <SignOutButton />
+            <SignedIn>
+              <div className="flex flex-col gap-3">
+                <DashboardComponent />
+                <Button disabled variant="default" className="w-full">
+                  Profile
+                </Button>
+                <div className="bg-red-700 text-white font-bold py-2 flex items-center justify-center gap-5 rounded-md">
+                  <LogOut /> <SignOutButton />
+                </div>
               </div>
-            </div>
-          </SignedIn>
+            </SignedIn>
 
-          <SignedOut>
-            <div className="flex flex-col gap-3">
-              <Button asChild variant="default" className="w-full">
-                <SignInButton />
-              </Button>
-              <Button asChild variant="outline" className="w-full">
-                <SignUpButton />
-              </Button>
-            </div>
-          </SignedOut>
-        </div>
+            <SignedOut>
+              <div className="flex flex-col gap-3">
+                <Button asChild variant="default" className="w-full">
+                  <SignInButton />
+                </Button>
+                <Button asChild variant="outline" className="w-full">
+                  <SignUpButton />
+                </Button>
+              </div>
+            </SignedOut>
+          </div>
+        </SheetClose>
         <SheetFooter>
           <SheetClose asChild>
-            <Button variant="ghost" className="w-full">
+            <Button variant="ghost" className="w-full border">
               Close
             </Button>
           </SheetClose>

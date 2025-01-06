@@ -1,4 +1,5 @@
 "use client";
+import Loading from "@/app/Loading";
 import { searchPostsByTitle } from "@/lib/appwrite/api";
 import { useGetPosts } from "@/lib/react-query/queriesAndMutations";
 import { MapPinHouse, Newspaper, UserRoundSearch } from "lucide-react";
@@ -27,7 +28,12 @@ const HomeP = () => {
     posts();
   }, []);
 
-  if (isFetching) return <p>Loading...</p>;
+  if (isFetching)
+    return (
+      <div className="h-screen pt-10">
+        <Loading />
+      </div>
+    );
 
   const dashboardHiddenToken = process.env.NEXT_PUBLIC_DASHBOARD_HIDDEN_TOKEN;
 

@@ -120,6 +120,10 @@ export const createPost = async (payload: PayloadData, category: string) => {
       date,
       subServices,
       subCategory,
+      city,
+      item,
+      province,
+      district,
     } = payload;
 
     const postDocument = await databases.createDocument(
@@ -134,7 +138,11 @@ export const createPost = async (payload: PayloadData, category: string) => {
         latitude,
         longitude,
         images,
-        subCategory: "main",
+        subCategory,
+        city,
+        item,
+        province,
+        district,
         youtubeUrl,
         date: date || null,
       }
@@ -191,8 +199,20 @@ export const updatePost = async (payload: PayloadData) => {
       throw new Error("Invalid latitude or longitude values");
     }
 
-    const { title, tiptap, images, youtubeUrl, subServices, date, category } =
-      payload;
+    const {
+      title,
+      tiptap,
+      images,
+      youtubeUrl,
+      subServices,
+      date,
+      category,
+      subCategory,
+      city,
+      item,
+      province,
+      district,
+    } = payload;
 
     // Update the main post document
     const updatedPost = await databases.updateDocument(
@@ -205,6 +225,11 @@ export const updatePost = async (payload: PayloadData) => {
         latitude,
         longitude,
         images,
+        subCategory,
+        city,
+        item,
+        province,
+        district,
         youtubeUrl,
         date: date || null,
         category,
@@ -377,9 +402,16 @@ export const getInfinitePosts = async ({
   const limit = 20;
 
   const queries = (cursor?: string) => [
-    Query.orderDesc("$updatedAt"),
+    Query.orderDesc("$createdAt"),
     Query.limit(limit),
-    ...(category ? [Query.equal("category", category)] : []),
+    ...(category
+      ? [
+          Query.or([
+            Query.equal("subCategory", category),
+            Query.equal("category", category),
+          ]),
+        ]
+      : []),
     ...(cursor ? [Query.cursorAfter(cursor)] : []),
   ];
 
@@ -495,19 +527,18 @@ export const likePost = async (postId: string, likesArray: string[]) => {
  */
 export const searchPosts = async (
   searchTerm?: string,
-  category?: string,
   limit = 10,
   offset = 0
 ) => {
   try {
     const queries = [];
-
     if (searchTerm) {
-      queries.push(Query.search("title", searchTerm));
-    }
-
-    if (category) {
-      queries.push(Query.equal("category", category));
+      queries.push(
+        Query.or([
+          Query.search("title", searchTerm),
+          Query.equal("item", searchTerm),
+        ])
+      );
     }
 
     const searchResults = await databases.listDocuments(

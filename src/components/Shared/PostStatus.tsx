@@ -14,8 +14,6 @@ const PostStatus = ({
   const likesArray = post.likes;
   const [likes, setLikes] = useState(likesArray);
 
-  const dashboardHiddenToken = process.env.NEXT_PUBLIC_DASHBOARD_HIDDEN_TOKEN;
-
   const handleLikePost = (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -42,21 +40,13 @@ const PostStatus = ({
     });
   };
 
-  const handleSavePost = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!userId) {
-      alert("You need to be logged in to save a post.");
-      return;
-    }
-  };
-
   return (
-    <div className="flex items-center justify-between px-[2px] lg:px-10 mt-2">
-      <div className="flex gap-2">
+    <div className="flex items-center justify-between px-[2px]">
+      <div className="w-[25px] bg-white rounded-full h-[25px] flex items-center justify-center">
         <img
           src={
             checkIsLiked(likes, userId!)
-              ? "/icons/liked.svg"
+              ? "/icons/redHeart.svg"
               : "/icons/heart.svg"
           }
           alt="like-icon"
@@ -65,10 +55,10 @@ const PostStatus = ({
           className="cursor-pointer"
           onClick={handleLikePost}
         />
-        <p className="small-medium lg:base-medium">
+        {/* <p className="small-medium lg:base-medium">
           {" "}
           {likes ? formatLikes(likes.length) : "0"}
-        </p>
+        </p> */}
       </div>
       {/* <img
         src="/icons/save.svg"
@@ -78,13 +68,13 @@ const PostStatus = ({
         className="cursor-pointer"
         onClick={handleSavePost}
       /> */}
-      <Link
+      {/* <Link
         href={`/post?postId=${post.$id}&category=${post.category}&dash=${dashboardHiddenToken}`}
       >
         <button className="px-2 lg:px-4 py-[4px] text-sm md:font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring focus:ring-blue-300 text-nowrap">
           View Post
         </button>
-      </Link>
+      </Link> */}
     </div>
   );
 };

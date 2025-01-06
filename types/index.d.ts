@@ -24,6 +24,10 @@ interface PayloadData {
   title: string;
   userId: string;
   tiptap: string;
+  city: string;
+  item: string;
+  province: string;
+  district: string;
   subCategory: string;
   province: string;
   youtubeUrl?: string;
