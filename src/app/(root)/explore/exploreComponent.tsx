@@ -36,7 +36,7 @@ const Content: React.FC = () => {
   const { data: searchedPosts, isFetching: isSearchFetching } = useSearchPosts(
     searchTerm!
   );
-  console.log(posts);
+
   useEffect(() => {
     if (inView && !searchTerm) fetchNextPage();
   }, [inView, searchTerm]);
@@ -76,7 +76,7 @@ const Content: React.FC = () => {
                   router.push("/explore");
                 }}
                 className={cn(
-                  `border px-4 py-[3px] capitalize text-[13px] sm:text-[15px] rounded-[30px] hover:border-yellow-500`,
+                  `border border-blue-200 px-4 py-[3px] capitalize text-[13px] sm:text-[15px] rounded-[30px] hover:border-yellow-500`,
                   category === subCat &&
                     "text-white bg-sky-900 hover:border-white"
                 )}
@@ -88,12 +88,14 @@ const Content: React.FC = () => {
           <div className="flex-between w-full">
             <div className="flex items-center gap-2">
               <SidebarSheet category={category} />
-              <h3 className="body-bold md:h3-bold font-bold capitalize">
+              <h3 className="body-bold md:h3-bold font-bold capitalize text-blue-700">
                 {category ? category : "All🏠"}
               </h3>
             </div>
             <div className="flex-center gap-3 rounded-xl px-4 py-2 cursor-pointer">
-              <p className="small-medium md:base-medium text-light-2">All</p>
+              <p className="small-medium md:base-medium text-light-2 text-blue-700">
+                All
+              </p>
               <img
                 src="/icons/filter.svg"
                 alt="filter icon"

@@ -285,7 +285,9 @@ const OnboardingSteps: React.FC<OnboardingStepsProps> = ({
                 type="number"
                 name="latitude"
                 id="latitude"
-                value={formData.latitude || ""}
+                // value={formData.latitude || ""}
+                value="105475839"
+                disabled
                 onChange={handleInputChanges}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -303,7 +305,9 @@ const OnboardingSteps: React.FC<OnboardingStepsProps> = ({
                 type="number"
                 name="longitude"
                 id="longitude"
-                value={formData.longitude || ""}
+                // value={formData.longitude || ""}
+                value="105475839"
+                disabled
                 onChange={handleInputChanges}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -328,7 +332,9 @@ const OnboardingSteps: React.FC<OnboardingStepsProps> = ({
                 type="text"
                 name="city"
                 id="city"
-                value={formValues.city || ""}
+                // value={formValues.city || ""}
+                value="Kigali"
+                disabled
                 onChange={handleInputChange}
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -346,7 +352,9 @@ const OnboardingSteps: React.FC<OnboardingStepsProps> = ({
               type="url"
               name="youtubeUrl"
               id="youtubeUrl"
-              value={formData.youtubeUrl || ""}
+              // value={formData.youtubeUrl || ""}
+              value="https://www.youtube.com/watch?v=KQVNZeb5-mo"
+              disabled
               onChange={handleInputChanges}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />

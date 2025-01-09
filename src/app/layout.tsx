@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Lora } from "next/font/google";
 import "./globals.css";
+import AuthProvider from "@/context/AuthContext";
 
 const lora = Lora({ subsets: ["latin"] });
 
@@ -23,7 +24,9 @@ export default function RootLayout({
     <html lang="en">
       <QueryProvider>
         <ClerkProvider>
-          <body className={lora.className}>{children}</body>
+          <AuthProvider>
+            <body className={lora.className}>{children}</body>
+          </AuthProvider>
         </ClerkProvider>
       </QueryProvider>
     </html>

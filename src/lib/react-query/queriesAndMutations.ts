@@ -14,6 +14,8 @@ import {
   // getRecentPosts,
   likePost,
   searchPosts,
+  searchPostsByCategory,
+  searchPostsByTitle,
   updatePost,
 } from "../appwrite/api";
 
@@ -90,6 +92,15 @@ export const useSearchPosts = (searchTerm: string) => {
   });
 };
 
+export const useSearchPostByCategory = (category: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_POSTS_BY_CATEGORY, category],
+    queryFn: () => searchPostsByCategory(category),
+
+    enabled: !!category,
+  });
+};
+
 export const useGetPosts = (category?: string) => {
   //@ts-ignore
   return useInfiniteQuery({
@@ -115,17 +126,9 @@ export const useDeletePost = () => {
   });
 };
 
-// export const useGetRecentPosts = () => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
-//     queryFn: getRecentPosts,
-//   });
-// };
-
-// export const useGetPostBySubcategory = (subcategory: string) => {
-//   return useQuery({
-//     queryKey: [QUERY_KEYS.SEARCH_POSTS, subcategory],
-//     queryFn: () => fetchPostBySubCategory(subcategory),
-//     enabled: !!subcategory,
-//   });
-// };
+export const useSearchPostsByTitle = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_POSTS_BY_TITLE],
+    queryFn: searchPostsByTitle,
+  });
+};

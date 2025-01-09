@@ -17,4 +17,6 @@ export enum QUERY_KEYS {
 
   //  SEARCH KEYS
   SEARCH_POSTS = "getSearchPosts",
+  SEARCH_POSTS_BY_TITLE = "searchPostsByTitle",
+  SEARCH_POSTS_BY_CATEGORY = "searchPostsByCategory",
 }

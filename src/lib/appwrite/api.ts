@@ -14,11 +14,12 @@ import {
 } from "../appwrite.config";
 import { currentUser } from "@clerk/nextjs/server";
 import { extractFileId } from "../utils";
+import { IUserData } from "@/app/(auth)/verify/page";
 
 /**
  * USER RELATED FUNCTIONS
  */
-export async function saveUserToDB() {
+export async function getUserFromDB() {
   const user = await currentUser();
   const email = user?.emailAddresses[0].emailAddress;
 
@@ -32,19 +33,38 @@ export async function saveUserToDB() {
     [Query.equal("email", email)]
   );
 
-  if (existingUser.total === 0) {
-    await databases.createDocument(
-      DATABASE_ID!,
-      USER_COLLECTION_ID!,
-      ID.unique(),
-      {
-        userId: user.id,
-        email: email,
-      }
-    );
+  return existingUser;
+}
+
+export async function saveUserToDB(onboardedUser: IUserData) {
+  const user = await currentUser();
+  const email = user?.emailAddresses[0].emailAddress;
+
+  if (!user?.id || !email) {
+    throw new Error("User data not available");
   }
 
-  return { success: true };
+  const attributes = await databases.listAttributes(
+    DATABASE_ID!,
+    USER_COLLECTION_ID!
+  );
+  console.log("attributes", attributes);
+
+  const databaseUser = await databases.createDocument(
+    DATABASE_ID!,
+    USER_COLLECTION_ID!,
+    ID.unique(),
+    {
+      userId: user.id,
+      email: email,
+      name: onboardedUser.name,
+      username: onboardedUser.username,
+      imageProfile: onboardedUser.profile,
+      onboarded: true,
+    }
+  );
+
+  return databaseUser;
 }
 
 /**
@@ -554,7 +574,6 @@ export const searchPosts = async (
   }
 };
 
-// ||query implementation
 export const searchPostsByTitle = async () => {
   try {
     // Fetch all documents from the database
@@ -563,24 +582,50 @@ export const searchPostsByTitle = async () => {
       POSTS_COLLECTION_ID!
     );
 
-    // Filter posts where subcategory === 'experience'
-    const experiences = searchResults.documents.filter(
-      (post) => post.subCategory === "experience"
-    );
-    const activities = searchResults.documents.filter(
-      (post) => post.subCategory === "activity"
-    );
-    const tips = searchResults.documents.filter(
-      (post) => post.subCategory === "tips"
-    );
+    // Filter and limit posts to 4 for each subcategory
+    const experiences = searchResults.documents
+      .filter((post) => post.subCategory === "experience")
+      .slice(0, 3); // Limit to 4 posts
 
-    return { experiences, activities, tips };
+    const activities = searchResults.documents
+      .filter((post) => post.subCategory === "activity")
+      .slice(0, 3); // Limit to 4 posts
+
+    const tips = searchResults.documents
+      .filter((post) => post.subCategory === "tips")
+      .slice(0, 3); // Limit to 4 posts
+
+    const economic = searchResults.documents
+      .filter(
+        (post) =>
+          post.subCategory === "Hotels" || post.subCategory === "Restaurants"
+      )
+      .slice(0, 12);
+
+    return { experiences, activities, tips, economic };
   } catch (error) {
     console.error("Error searching posts:", error);
     throw error;
   }
 };
 
+export const searchPostsByCategory = async (subCategory: string) => {
+  try {
+    // Fetch all documents from the database
+    const searchResults = await databases.listDocuments(
+      DATABASE_ID!,
+      POSTS_COLLECTION_ID!,
+      [Query.equal("subCategory", subCategory), Query.limit(4)]
+    );
+
+    return searchResults.documents;
+  } catch (error) {
+    console.error("Error searching posts:", error);
+    throw error;
+  }
+};
+
+// ||query implementation
 export const searchNewsPosts = async () => {
   try {
     // Fetch all documents from the database

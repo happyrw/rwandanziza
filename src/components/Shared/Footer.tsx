@@ -1,42 +1,33 @@
-import React from "react";
-import Link from "next/link";
 import MaxWidthWrapper from "./MaxWidthWrapper";
 
 const Footer = () => {
   return (
-    <footer className="bg-white h-10 relative">
+    <footer className="bg-gray-800 mx-auto max-w-screen-xl md:px-10 py-5 md:py-10 text-white">
       <MaxWidthWrapper>
-        <div className="border-t border-gray-200" />
-
-        <div className="h-full flex flex-col md:flex-row justify-center md:justify-between items-center">
-          <div className="text-center md:text-left pb-2 md:pb-0">
-            <p className="text-sm text-muted-foreground">
-              &copy; {new Date().getFullYear()} All rights reserved
-            </p>
-          </div>
-
-          <div className="flex items-center justify-center">
-            <div className="flex space-x-8">
-              <Link
-                href="#"
-                className="text-sm text-muted-foreground hover:text-gray-600"
-              >
-                Terms
-              </Link>
-              <Link
-                href="#"
-                className="text-sm text-muted-foreground hover:text-gray-600"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="#"
-                className="text-sm text-muted-foreground hover:text-gray-600"
-              >
-                Cookies Policy
-              </Link>
-            </div>
-          </div>
+        <div className="container mx-auto text-center">
+          <p className="text-sm">
+            &copy; 2025 All rights reserved. |{" "}
+            <a href="/terms" className="text-blue-400 hover:underline">
+              Terms
+            </a>{" "}
+            |{" "}
+            <a href="/privacy" className="text-blue-400 hover:underline">
+              Privacy Policy
+            </a>{" "}
+            |{" "}
+            <a href="/cookies" className="text-blue-400 hover:underline">
+              Cookies Policy
+            </a>
+          </p>
+          <p className="text-sm mt-2">
+            Designed by{" "}
+            <a
+              href="https://example.com"
+              className="text-blue-400 hover:underline"
+            >
+              You
+            </a>
+          </p>
         </div>
       </MaxWidthWrapper>
     </footer>
