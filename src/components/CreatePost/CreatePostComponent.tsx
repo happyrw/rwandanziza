@@ -36,15 +36,15 @@ const Content: React.FC = () => {
     district: "",
     subCategory: "",
     item: "",
-    city: "",
+    city: "Kigali",
   });
   const [formData, setFormData] = useState({
     date: new Date(),
     title: "",
     tiptap: "",
     images: [] as File[] | string[],
-    latitude: "",
-    longitude: "",
+    latitude: "105475839",
+    longitude: "105475839",
     youtubeUrl: "",
     subServices: [
       {

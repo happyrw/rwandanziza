@@ -156,7 +156,7 @@ const Page = () => {
           </div>
 
           {/* Email (Optional/Disabled for now) */}
-          <div>
+          {/* <div>
             <label
               htmlFor="email"
               className="block text-sm font-semibold text-gray-700 mb-1"
@@ -170,7 +170,7 @@ const Page = () => {
               placeholder="Enter your email"
               className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-600 focus:outline-none"
             />
-          </div>
+          </div> */}
 
           {/* Submit Button */}
           <button

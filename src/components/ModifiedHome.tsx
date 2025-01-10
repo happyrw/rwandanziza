@@ -59,8 +59,11 @@ const ModifiedHome = () => {
                 "https://images.pexels.com/photos/1933873/pexels-photo-1933873.jpeg",
               rating: 5,
             },
-          ].map((t) => (
-            <div className="flex flex-col items-start gap-4 border p-4">
+          ].map((t, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col items-start gap-4 border p-4"
+            >
               <div className="flex items-center mt-2 mb-4">
                 {Array.from({ length: t.rating }).map((_, i) => (
                   <svg
