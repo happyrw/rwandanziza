@@ -12,6 +12,17 @@ import LoaderComponent from "./Shared/LoaderComponent";
 import { CommentSheet } from "./Shared/commentSheet";
 import Loading from "@/app/Loading";
 
+import {
+  FaWifi,
+  FaSwimmingPool,
+  FaParking,
+  FaConciergeBell,
+  FaDumbbell,
+  FaUtensils,
+  FaSpa,
+  FaCoffee,
+} from "react-icons/fa";
+
 export default function PostDetailsComponent() {
   return (
     <Suspense
@@ -226,9 +237,43 @@ const Content: React.FC = () => {
         </section>
       )}
 
+      {/* Most popular facilities */}
+      {post.subCategory === "Hotels" && (
+        <div>
+          <h3 className="text-lg font-bold mb-4">Most Popular Facilities</h3>
+          <ul className="grid grid-cols-2 gap-4">
+            <li className="flex items-center">
+              <FaWifi className="text-blue-500 mr-2" /> Free Wi-Fi
+            </li>
+            <li className="flex items-center">
+              <FaSwimmingPool className="text-teal-500 mr-2" /> Swimming Pool
+            </li>
+            <li className="flex items-center">
+              <FaParking className="text-gray-500 mr-2" /> Free Parking
+            </li>
+            <li className="flex items-center">
+              <FaConciergeBell className="text-orange-500 mr-2" /> 24/7
+              Concierge
+            </li>
+            <li className="flex items-center">
+              <FaDumbbell className="text-red-500 mr-2" /> Fitness Center
+            </li>
+            <li className="flex items-center">
+              <FaUtensils className="text-green-500 mr-2" /> On-Site Restaurant
+            </li>
+            <li className="flex items-center">
+              <FaSpa className="text-purple-500 mr-2" /> Spa & Wellness Center
+            </li>
+            <li className="flex items-center">
+              <FaCoffee className="text-brown-500 mr-2" /> Free Breakfast
+            </li>
+          </ul>
+        </div>
+      )}
+
       {/* YouTube Section */}
       <section className="mb-8">
-        {post.youtubeUrl ? (
+        {post.youtubeUrl && (
           <a
             href={post.youtubeUrl}
             target="_blank"
@@ -237,8 +282,6 @@ const Content: React.FC = () => {
           >
             ▶ Watch on YouTube
           </a>
-        ) : (
-          <p className="text-gray-500">No YouTube URL provided</p>
         )}
       </section>
 

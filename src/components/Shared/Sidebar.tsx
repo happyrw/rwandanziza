@@ -1,6 +1,8 @@
 import { subCategory } from "@/lib/utils";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { useState } from "react";
+
+import "ol/ol.css";
 
 const Sidebar = ({ selectedCategory }: { selectedCategory: string }) => {
   const [filters, setFilters] = useState({
@@ -27,7 +29,7 @@ const Sidebar = ({ selectedCategory }: { selectedCategory: string }) => {
   };
 
   return (
-    <div className="w-full min-w-fit max-w-xs bg-white rounded-lg shadow-md p-6 border border-gray-200">
+    <div className="w-full min-w-fit max-w-xs bg-white rounded-lg ">
       <h2 className="text-2xl font-semibold text-blue-500 mb-4">Filter by</h2>
       <div className="h-screen overflow-y-auto pb-48 md:pb-32 remove-scrollbar">
         {selectedCategory
